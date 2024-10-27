@@ -1,0 +1,318 @@
+/* Our custom */
+*{
+    font-family: "Roboto",'Arial', "Helvetica Neue", Helvetica, sans-serif;
+    
+}
+
+body,li,ul,p,a,button,h2,h3{
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    text-decoration: none;
+    color: inherit;
+}
+h2{
+
+    color: var(--font-1);
+    font-size: 1.7rem;
+}
+body{
+    background-color: var(--background-color);
+}
+input{
+    list-style: none;
+    text-decoration: none;
+    color: inherit;
+}
+body{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+:root{
+    --primary: #04D1A8;
+    --primary-05: #ef4c11;
+    --font-1:#2A274D;
+    --font-2:#79838F;
+    --font-3:#FFFDEF;
+    --bg-color:#f8f8f8;
+    --footer-color:black;
+    --link-color:rgb(62, 92, 240);
+    --background-color: #dbdbdb21;
+    --color-hover:green;
+    --btn-color-dis:gray;
+    --box-shadow: 0px 1px 3px 1px #00000030;
+
+}
+.row{
+    margin: 0 -12px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+}
+.collumn-2{
+    width: 50%;
+    margin: 0 12px;
+}
+
+.collumn-4{
+    width: 23%;
+    margin: 0 12px;
+}
+.collumn-3{
+    width: 30%;
+    margin: 0 12px;
+}
+.collum-6{
+    width: 66.7%;
+    margin: 0 12px;
+}
+.text_bolder{
+    font-weight: bold;
+}
+.main__container{
+    display: flex;
+    justify-content: center;
+    width: 90%;
+    margin: 80px 46px;
+    margin-top: 120px;
+    min-height: 800px;
+    background-color: white;
+
+  
+}
+.btn_hover:hover{
+    background-color: var(--color-hover) ;
+    color: var(--font-3) ;
+    cursor: pointer;
+}
+.link_hover:hover{
+    cursor: pointer;
+    color: var(--color-hover) !important;
+}
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Old versions of Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
+}
+
+
+.modal{
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.252);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--font-1);
+    z-index: 10;
+}
+
+.error{
+    min-width: 400px;
+    max-width: 700px;
+    margin-top: 48px;
+    margin-bottom: -48px;
+    border:1px solid red;
+    background-color: rgba(255, 0, 0, 0.034);
+    padding: 14px;
+    color: black;
+    font-size: 1.1rem;
+    border-radius: 2px;
+    white-space: normal;
+    word-break: keep-all;
+    text-align: center;
+}
+.validation{
+    float: left;
+    color: red;
+    white-space: normal;
+    word-break: keep-all;
+    text-overflow: clip;
+    font-size: 1rem;
+    margin: 4px 0;
+}
+.btn_disable{
+    background-color: var(--btn-color-dis) !important;
+    opacity: 0.6;
+    cursor: default !important;
+}
+.input__error{
+    border: 1.5px solid red !important;
+    outline-color: transparent !important;
+}
+
+.btn__hover:hover  .modal__info{
+    height: 250px;
+    opacity: 1;
+    overflow: visible;
+}
+.modal__info{
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    top: 0;
+    width: 450px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 1px 1px 1px #a5a5a5ca;
+    height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all linear 0.3s;
+    z-index: 10;
+}
+.modal__info-open{
+    height: 250px;
+    opacity: 1;
+    overflow: visible;
+}
+.modal__info-header{
+    width: 100%;
+    text-align: center;
+    align-content: center;
+    height: 58px;
+    background-color: var(--font-1);
+    color: var(--font-3);
+    font-size: 1.6rem;
+    border-top-left-radius: 5px;
+    border-top-right-radius:5px ;
+    font-weight: 500;
+}
+.modal__info-body{
+    margin-top: 12px;
+    width: 95%;
+    height: 110px;
+    font-size: 1.1rem;
+    border-bottom: 1px solid cadetblue;
+    color: var(--font-1);
+}
+.modal__info-btn-container{
+    display: flex;
+    width: 95%;
+    margin-top: 16px;
+    justify-content: flex-end;
+}
+.modal__info-btn{
+    background-color: var(--primary);
+    padding: 8px 24px ;
+    font-weight: 500;
+    font-size: 1.1rem;
+    color: var(--font-3);
+    border-radius: 2px;
+}
+.modal__info-btn +.modal__info-btn{
+    margin-left: 12px;
+}
+.modal__info-btn-cancel{
+    background-color: var(--primary-05);
+}
+
+.modal__success{
+    position: fixed;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    height: 220px;
+    background-color: #00000082;
+    width: 350px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    transform-origin: 10px 10px;
+    animation: ease-in fadeIn 0.2s,ease-out fadeOut 0.3s 2s forwards;
+
+}
+.modal__success-header{
+    color: var(--font-3);
+    margin-top: 12px;
+    font-size: 1.2rem;
+}
+#copy{
+    position: absolute;
+    color: var(--font-1);
+    background-color: #E7E7E7;
+    top: 28px;
+    left: 50%;
+    transform: translate(-50%);
+    border-radius: 100px;
+    font-size: 1rem;
+    padding: 6px 8px;
+    align-content: center;
+    opacity: 0;
+    transition: linear all 0.3s;
+}
+.copy__open{
+    opacity: 1 !important;
+}
+#copy::before{
+    position: absolute;
+    top:-12px;
+    left: 50%;
+    transform: translate(-50%);
+    border: 6px solid red;
+    border-color: transparent transparent red transparent;
+    display: block;
+    content: "";
+
+}
+@keyframes ease_in {
+    from{
+        scale: 0;
+    }
+    to{
+        scale: 1;
+    }
+}
+@keyframes ease_in_out {
+    from{
+        scale: 1;
+        
+    }
+    to{
+        scale: 0;
+    }
+}
+@keyframes fadeIn{
+    from{
+        opacity: 0.5;
+        scale: 0.5;
+    }
+    to{
+        opacity: 1;
+        scale: 1;
+    }
+}
+@keyframes fadeOut{
+    from{
+        opacity: 1;
+        scale: 1;
+    }
+    to{
+        opacity: 0;
+        scale: 0;
+    }
+}
+@keyframes fadeInNotScale{
+    from{
+        opacity: 0.5;
+    }
+    to{
+        opacity: 1;
+    }
+}
+@keyframes rotate360{
+    100% { transform: rotate(360deg); }
+}

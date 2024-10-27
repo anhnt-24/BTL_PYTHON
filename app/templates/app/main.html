@@ -1,0 +1,240 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href={%static "/css/base.css" %}>
+    <link rel="stylesheet" href={%static "/css/header.css" %}>  
+    <link rel="stylesheet" href={%static "/css/footer.css" %}>  
+    <link rel="stylesheet" href={%static "/css/home.css" %}>  
+    <link rel="stylesheet" href={%static "/css/cart.css" %}>  
+    <link rel="stylesheet" href={%static "/css/login.css" %}>  
+    <link rel="stylesheet" href={%static "/css/order.css" %}>  
+    <link rel="stylesheet" href={%static "/css/payment.css" %}>  
+    <link rel="stylesheet" href={%static "/css/productdetail.css" %}>  
+    <link rel="stylesheet" href={%static "/css/user.css" %}>
+    <link rel="stylesheet" href={%static "/css/shippingAddress.css" %}>
+    <link rel="stylesheet" href={%static "/css/search.css" %}>
+    <link rel="stylesheet" href={%static "/css/chatbot.css" %}>
+    
+    <title>Document</title>
+</head>
+<body>
+{% comment %} Header {% endcomment %}
+<div id="header">
+        
+    <div class="header__container">
+        
+        <a href='{% url "home" %}' class="header__icon">
+            Sopi          
+        </a>
+        <div class="header__center">
+            <ul class="header__buttons">
+                <a href='{% url "home" %}' class="header__button">Trang chủ</a>
+                <div class="header__product-container">
+                    <p class="header__button">
+                        Sản phẩm
+                    </p>
+                    <ul class="header__list-product">
+                        {% for item in generalCategory  %}
+                            <a href="" class="header__list-product--item header__button" name="{{item.id}}">{{item.name}}</a>
+                        {% endfor %}
+                
+                        <div class="header__list-product--img">
+                            <img src='{{MEDIA_URL}}{{generalCategory.0.img}}' alt='' class="header__list-product--img-item">
+                            <span class="header__product--pic">{{generalCategory.0.nameImg}}</span>
+                        </div>
+                    </ul>
+                </div>
+                <a href={% url "lookupOrder" %} class="header__button">Tra cứu</a>
+                <a href={% url "about-us" %} class="header__button">Về chúng tôi</a>
+            </ul>
+            <form class="header__search" method="GET" action="{% url "searchProduct" %}">
+                <input name="search" type="text" class="header__search--input" placeholder="Tìm kiếm" value="{{search}}">
+                <button class="button__search btn_hover">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </form>
+        </div>
+        <div class="header__right">
+            <ul class="header__buttons" style="justify-content: flex-end;">
+                    {% if user.is_authenticated %}
+                    <div class="header__user-container">
+                        <span style="text-align: center;" href="" class="header__button header__user">
+                            <img style="width: 30px; 
+                            height: 30px; 
+                            object-fit:contain; 
+                            border-radius: 50%; 
+                            border: 1px solid gray;"  src="{% if userimg %}{{MEDIA_URL}}/{{userimg}}{% else %}{% static "/assets/img/default_user-img.png" %}{% endif %}" alt=""> 
+                            <p style="margin-left: 6px; white-space: nowrap; 
+                            width: 120px; 
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            text-align: start;">{{user | capfirst}} </p> 
+                        </span>
+
+
+                        <div class="header__user-list">
+                            <a class="header__user-item" href={% url "my-info" %}><i class="fa-solid fa-user"></i> Tài khoản</a>
+                            <a class="header__user-item" href={% url "address" %}><i class="fa-solid fa-location-dot"></i> Địa chỉ</a>
+                            <a class="header__user-item" href={% url "my-order" %}> <i class="fa-solid fa-box"></i> Đơn hàng</a>
+                            <a class="header__user-item" href={% url "payment" %}> <i class="fa-solid fa-credit-card"></i> Thanh toán</a>
+                            <a class="header__user-item" href={% url "sendChangePassword" %}> <i class="fa-solid fa-key"></i> Đổi mật khẩu</a>
+                            <a class="header__user-item" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất </a>
+                            <form action={% url "logout" %} method="POST" id="logout">
+                                {% csrf_token %}
+                            </form>
+                        </div>
+                    </div>
+                    <a href="{% url "cart" %}" class="header__button header Cart">
+                        <i class="fa-solid fa-cart-shopping" style="font-size: 1.3rem;"></i>
+                        Giỏ hàng{% if cartQuantity %}({{cartQuantity}}){% endif %}
+                    </a>
+                    {% else %}
+                    <a href={% url "login" %} class="header__button">Đăng nhập</a>
+                    <a href={% url "register" %} class="header__button"> Đăng kí </a>
+                    {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% comment %} Main {% endcomment %}
+    {% block home %}{% endblock home %}
+    {% block user %}{% endblock user %}
+    {% block cart %}{% endblock cart %}
+    {% block order %}{% endblock order %}
+    {% block login %}{% endblock login %}
+    {% block register  %}{% endblock register  %}
+    {% block productdetail %}{% endblock productdetail %}
+    {% block payment %}{% endblock payment %}
+    {% block 404view %}{% endblock 404view %}
+    {% block useraddress %}{% endblock useraddress %}
+    {% block search %}{% endblock search %}
+    <div class="chatBot">
+        <header>
+            <h2>ChatBot</h2>
+            <span alt="Close"
+                  id="cross"
+                  onclick="cancel()">X</span>
+        </header>
+        <ul class="chatbox">
+            <li class="chat-incoming chat">
+                <p>Xin chào tôi có thể giúp gì cho bạn</p>
+            </li>
+        </ul>
+        <div class="chat-input">
+            <textarea rows="0" cols="17"
+                      placeholder="Nhập câu hỏi"></textarea>
+            <button id="sendBTN">Gửi</button>
+        </div>
+    </div>
+    <button class="toggleChatBot btn_hover"  onclick="openChatBot()">
+        <i class="fa-solid fa-comments"></i>
+    </button>
+
+    <script src="{% static "/js/chatbot.js" %}" defer></script>
+    <div id="footer" >
+        <div class="footer__container row">
+            <div class=" collumn-4">
+                <h2 class="footer__title">Hỗ trợ khách hàng</h2>
+                <ul class="footer__list">
+                    <li class="footer_policy_hover footer__list-hover">Hướng dẫn chọn size</li>
+                    <li class="footer_policy_hover footer__list-hover">Phương thức thanh toán</li>
+                    <li class="footer_policy_hover footer__list-hover">Chính sách vận chuyển</li>
+                    <li class="footer_policy_hover footer__list-hover">Chính sách bảo mật</li>
+                    <li class="footer_policy_hover footer__list-hover">Quy định đổi trả</li>
+                    <li class="footer_policy_hover footer__list-hover">Chính sách xử lý khiếu nại</li>
+                </ul>
+            </div>
+    
+            <div class=" collumn-4">
+                <h2 class="footer__title">Về chúng tôi</h2>
+                <ul class="footer__list">
+                    <p class="text_bolder">Công ty TNHH Sopi</p>
+                    <p><span class="text_bolder">
+                        Địa chỉ:
+                    </span> Học viện Công nghệ Bưu chính Viễn thông</p>
+                    <p><span class="text_bolder">
+                        Mã số doanh nghiệp: 
+                    </span>INT13162-20241-03</p>
+                    <p> <span class="text_bolder">
+                        Email:
+                    </span> Sopi@stu.ptit.edu.vn</p>
+                </ul>
+            </div>
+    
+            <div class=" collumn-4">
+                <h2 class="footer__title">Theo dõi chúng tôi trên</h2>
+                <ul class="footer__list">
+                    <li class="footer__list-hover"><i class="fa-brands fa-square-instagram"></i> Instagram</li>
+                    <li class="footer__list-hover"><i class="fa-brands fa-facebook"></i> Facebook</li>
+                    <li class="footer__list-hover"><i class="fa-brands fa-linkedin"></i> LinkedIn</li>
+                </ul>
+                <h2 class="footer__title">Phương thức thanh toán</h2>
+                <ul class="footer__payment-list">
+                    <li><img src={% static "/assets/img/visa_logo.png" %} alt="Visa logo" class="footer__payment" height='25.71' /></li>
+                    <li><img src={% static "/assets/img/momo_logo.png" %} alt="Momo logo"  class="footer__payment"/></li>
+                    <li><img src={% static "/assets/img/applepay_logo.png" %} alt="Momo logo"  class="footer__payment footer__fix-img"/></li>
+                    <li><img src={% static "/assets/img/viettel_logo.png" %} alt="Momo logo" class="footer__payment footer__fix-img"/></li>
+                </ul>
+            </div>
+
+            <div class=" collumn-4">
+                <h2 class="footer__title">Đối tác của chúng tôi</h2>
+                <p style="margin-left:25px;"><img src={% static "assets/img/ptit_logo.png"%} alt="PTIT logo" class="footer__cooperator" /></p>
+            </div>
+        </div>
+    </div>
+    
+</body>
+<script>
+    function logout(){
+        document.getElementById('logout').submit()
+    }
+    var product={}
+
+    {% for item in generalCategory  %}
+        product[{{item.id}}]={
+            url:"{{MEDIA_URL}}/{{item.img}}",
+            desc:"{{item.nameImg}}"
+        }
+    {% endfor %}
+    console.log(product)
+    var listHeaderProduct=document.querySelectorAll('.header__list-product--item')
+    for(let item of listHeaderProduct){
+        item.onmouseover=function(){
+            var product_img=document.querySelector(".header__list-product--img-item")
+            var product_desc=document.querySelector(".header__product--pic")
+            product_img.setAttribute("src",product[item.name].url)
+            product_desc.textContent=product[item.name].desc
+        }
+    }
+
+    
+
+
+    
+
+</script>
+<script src="https://esgoo.net/scripts/jquery.js"></script>
+<script src={% static "/js/modal-info.js" %}></script>
+<script>
+    {% if message %}
+        renderModalSuccess('{% static "/assets/img/success.png" %}',{{message}})
+    {% endif %}
+
+    {% for item in messages  %}
+        {% if item.tags == 'info' %}
+            renderInforModal("{{item}}",false,0)
+        {% endif %}
+        {% if item.tags == 'success' %}
+            renderModalSuccess('{% static "/assets/img/success.png" %}','{{item}}')
+        {% endif %}
+    {% endfor %}
+</script>
+</html>

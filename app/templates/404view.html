@@ -1,0 +1,7 @@
+{% extends "app/main.html" %}
+{% load static %}
+{% block 404view %}
+<div class="main__container">
+    <img src='{% static "assets/img/not_found.png" %}' height='700'>
+</div>
+{% endblock 404view %}

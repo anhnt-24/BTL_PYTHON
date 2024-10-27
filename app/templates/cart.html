@@ -1,0 +1,216 @@
+{% extends "app/main.html" %}
+{% load static %}
+{% load custom_filters %}
+{% block cart %}
+<div class="main__container">
+    <div id="cart">
+        <h2 class="cart__title"> Giỏ hàng của tôi</h2>
+        {% if cart  %}
+
+        <form class="cart__container" method="POST">
+            {% csrf_token %} 
+            <div class="cart__header">
+                 <h4 class="cart__item-name">Sản phẩm</h4>
+                 <h4 class="cart__item-category">Phân loại</h4>
+                 <h4 class="cart__item-price">Đơn giá</h4>
+                 <h4 class="cart__item-quantity">Số lượng</h4>
+                 <h4 class="cart__item-total">Số tiền</h4>
+                 <h4 class="cart__item-action">Thao tác</h4>
+             </div>
+         
+             {% for item in cart  %}
+                 <div class="cart__item">
+                     <div class="cart__item-group cart__item-name">
+                         <input type="checkbox" style="margin-right: 12px;" class="cart__checkbox" name="cartItem[]" value="{{item.id}}">
+                         <a href='{% url "productdetail" item.product.id %}'>
+                             <img src='{{MEDIA_URL}}{{item.color.img}}' alt="" height="100" style="margin-right: 12px;">
+
+                         </a>
+                         <p>
+                             <span class="cart__item-titlte">
+                                 {{item.product.name}}
+                             </span> 
+                             <span style="color: #5ADAC8; border: 1px solid #5ADAC8; padding: 2px; font-size: 0.8rem;">Miễn phí đổi trả trong 15 ngày</span>
+                         </p>
+                         
+                     </div>
+                     <div class="cart__item-group cart__item-category">
+                         <p>Màu: {{item.color.color}} <br> Size: {{item.size.size}}</p>
+                     </div>
+                     <div class="cart__item-group cart__item-price">
+                         <del style="margin-right: 12px; font-size: 1rem;"> 
+                             300.000đ
+                             
+                         </del>
+                         <span style="color: red; font-size: 1.2rem;font-weight: 500;" value='{{item.product.price}}'> {{item.product.price|format_currency}}</span>
+                     </div>
+                     <div class="cart__item-group cart__item-quantity">
+                         <button class="cart__item-quantity-minus" type="button" >-</button>
+                         <input type="text" name="quantity[]" class="cart__item-quantity-input" data-id="{{item.id}}" value="{{item.quantity}}"  >
+                         <button class="cart__item-quantity-plus" type="button">+</button>
+                     </div>
+                     <p class="cart__item-total">{{item.total |format_currency}}</p>
+                     <a href="{% url "deleteCartItem" item.id %}" class="cart__item-group cart__item-action" style="font-size: 1.2rem; color: var(--link-color);">Xóa</a>
+                 </div>
+             {% endfor %}
+             
+             <div class="cart__to-order">
+                 <div class="cart__to-order-group">
+                     <input type="checkbox" class="cart__checkall" style="transform: scale(1.2);">
+                     <label for="">Chọn tất cả</label>
+                     <button onclick='setCartFormAction("{% url "delMultiCartItem" %}")' type="submit" style="margin-left: 32px;" class="link_hover cart__delete-options">Xóa</button>
+                 </div>
+                 <div class="cart__to-order-group">
+                     <label for="">Tổng thanh toán:</label>
+                     <strong class="cart__selected-total" style="color: red; margin-right: 100px; font-size: 1.4rem; font-weight: 600;">0đ</strong>
+                     <input name="total" type="hidden">
+                     <button onclick='setCartFormAction("{% url "proccessPaymentMulti" %}")' type="submit" class="cart__to-order-submit btn_hover"> Mua Hàng</button>
+ 
+                 </div>
+             </div>
+            
+ 
+ 
+             <!--  -->
+        </form>
+        {% else %}
+            <p style="width: 100%; text-align: center; font-size: 1.3rem; margin-top: 24px;">Bạn chưa có sản phẩm nào! <a class="link_hover" href="{% url "home" %}" style="color: var(--link-color);">Mua sắm ngay</a></p>
+        {% endif %}
+    </div>
+</div> 
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src={% static "/js/modal-info.js" %}></script>
+
+<script>
+    {% if ok %}
+        renderModalSuccess('{% static "/assets/img/success.png" %}','Thêm giỏ hàng thành công!')
+    {% endif %}
+    function setSelectedCartTotal(){
+        var sum=0
+        $.each($('.cart__item'),function(i,x){
+            if(x.querySelector("input[type='checkbox']:checked")){
+                sum+=eliminateNonDigits(x.querySelector(".cart__item-total").innerText)
+            }
+        })
+        console.log(sum)
+        $('input[name="total"]').val(sum)
+        $('.cart__selected-total').text(formatCurrency(sum))
+
+
+    }
+    function setCartFormAction(url){
+        $('.cart__container').attr('action',url)
+    }
+    
+
+    function eliminateNonDigits(input) {
+        return Number(input.replace(/\D/g, ''));
+    }
+    function formatCurrency(amount, currencySymbol = 'đ') {
+        const numStr = amount.toString();
+        const formattedInteger = numStr.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        return `${formattedInteger}${currencySymbol}`;
+    }
+
+    function sendRequest(input,total,price){
+        let id=input.getAttribute('data-id')
+        let quantity=input.value
+        fetch(`my-cart/quantity/${id}/${quantity}`)
+            .then((data)=>{
+
+            })
+            .catch(error=>{
+
+            })
+        total.innerText=formatCurrency(price*quantity)
+
+
+        
+    }
+    var checkbox=$('.cart__checkbox')
+    $('.cart__checkall').change(function(){
+        var _this=this
+        $.each(checkbox,function(i,x){
+            x.checked=_this.checked
+        })
+        setSelectedCartTotal()
+
+    })
+    var checkall=$('.cart__checkall')[0]
+    $.each(checkbox,function(i,x){
+        x.onchange=function(){
+            var check=$('.cart__checkbox:checked').length===checkbox.length
+            checkall.checked=check
+            setSelectedCartTotal()
+        }
+    })
+
+   
+
+    var cart__item=$('.cart__item')
+
+    
+    $.each(cart__item,function(i,x){
+        let minus=x.querySelector('.cart__item-quantity-minus')
+        let plus=x.querySelector('.cart__item-quantity-plus')
+        let quantity=x.querySelector('.cart__item-quantity-input')
+        let total=x.querySelector('.cart__item-total')
+        let price=x.querySelector('span[value]').getAttribute('value')
+        
+        if(quantity){
+            quantity.onblur=function(){
+                if(!this.value || this.value<1){
+                    this.value=1
+                }
+                sendRequest(quantity,total,price)
+            }
+            quantity.onkeydown=function(e){
+                if(e.keyCode===13){
+                    e.preventDefault()
+                    e.target.blur()
+
+                }
+            }
+        }
+
+        if(minus){
+
+                minus.onclick=function(){
+               
+                if(quantity.value>1){
+                    quantity.value--
+                    sendRequest(quantity,total,price)
+                    setSelectedCartTotal()  
+                }
+            }
+        }
+        if(plus){
+                plus.onclick=function(){
+                    quantity.value++
+                    sendRequest(quantity,total,price)
+                    setSelectedCartTotal()
+                }
+        }
+        
+    })
+    function cartSubmitChoices(e){
+	    if( $('.cart__checkbox:checked').length===0){
+	            renderInforModal('Chưa có sản phẩm nào được chọn.',false,'')
+	            e.preventDefault()   
+	            return false
+	    }
+	    return true
+    }
+    $('.cart__to-order-submit').click(cartSubmitChoices)
+    
+    $('.cart__delete-options').on("click",function(e){
+    	if(cartSubmitChoices(e)){
+    		e.preventDefault()
+    		renderInforModal("Bạn chắc chắn chứ?",true,()=>{
+    			$('.cart__container').submit()
+    		});
+    	}
+    })
+</script>
+
+{% endblock cart %}

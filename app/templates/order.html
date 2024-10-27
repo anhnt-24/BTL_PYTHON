@@ -1,0 +1,269 @@
+{% extends "app/main.html" %}
+{% load static %}
+{% load custom_filters %}
+{% block order %}
+<div class="main__container">
+    <div id="order">
+        <h2 style="margin-bottom: 24px;">Đơn hàng của tôi</h2>
+        <div class="order__header">
+            <h4 class="order__header-item order__header-active">Tất cả</h4>
+            <h4 class="order__header-item">Chờ xác nhận</h4>
+            <h4 class="order__header-item">Đang xử lí</h4>
+            <h4 class="order__header-item">Đang giao</h4>
+            <h4 class="order__header-item">Đã giao</h4>
+            <h4 class="order__header-item">Đã hủy</h4>
+
+            <div class="order__header-active-line"></div>
+        </div>
+        <!-- Order container -->
+        {% for item in order  %}
+            <div class="order__container" style="display: {% if forloop.counter == 1 %}block {% else %}none{% endif %};">
+                {% for item2 in item  %}
+                <div class="order__item">
+                    <p class="order__item-status">
+                        <i class="fa-solid fa-truck-fast"></i> {{item2.status}}
+                    </p>
+                    <div class="order__product-container" >
+                        <div class="order__product-img">
+                            <img src="{{MEDIA_URL}}{{item2.color_size.color.img}}" alt="" height="150" style="margin-right: 24px;">
+                            <div style="align-self: flex-start;">
+                                <h3 class="order__product-title">
+                                   {{item2.color_size.color.product.name}}
+                                </h3>
+                                <span>
+                                    Phân loại hàng : {{item2.color_size.color.color}}, {{item2.color_size.size.size}}
+                                </span>
+                                <br>
+                                <span>x{{item2.quantity}}</span>
+                                <br>
+                                <small style="color: #5ADAC8; border: 1px solid #5ADAC8; padding: 2px;">Trả hàng miễn phí 15 ngày</small>
+                            </div>
+                        </div>
+                        <div style="display: flex;">
+                            <del style="margin-right: 12px;">300.000đ</del>
+                            <span style="color: red; font-size: 1.3rem; font-weight: 500;"> {{item2.color_size.color.product.price|format_currency}}</span>
+                        </div>
+                    </div>
+                    <div class="order__total">
+                        <p style="line-height: 1.6rem;">
+                            <strong>Đặt hàng lúc:</strong> {{item2.order.created_at|date:"H:i j/n/Y"}} GTM +7
+                            {% if item2.status == 'Giao thành công' %}
+                                <br><Strong>Nhận hàng lúc:</Strong> {{item2.delivered_at|date:"H:i j/n/Y"}}
+                            {% endif %}
+                            {% if item2.status == 'Đã hủy' %}
+                                <br><Strong>Hủy đơn lúc:</Strong> {{item2.delivered_at|date:"H:i j/n/Y"}}
+                            {% endif %}
+                            <br>
+                            <span>
+                                <strong>Người nhận: </strong>
+                                 {{item2.receiver}} ({{item2.phone}}) {{item2.detail}}
+                                 {{item2.commune}}, {{item2.district}}, {{item2.province}}
+                             </span> 
+                             <br>
+                             <strong>Mã đơn hàng: </strong><span class="codeOrder link_hover"> {{item2.order.code}}</span>
+                             <button class="copiCodeOrder link_hover" style="color:var(--primary);font-size:1.1rem; position:relative;" >Sao chép</button>
+                        </p>
+                        <span style="margin-right: 12px;">
+                            <strong>Thành tiền:</strong>
+                            <strong style="font-size: 1.6rem; color: red;"> {{item2.total|format_currency}}</strong>
+                        </span>
+                    </div>
+                    <div class="order__btn-container">
+                        {% if item2.status == 'Chờ xác nhận' or item2.status == 'Đang xử lý'%}
+                            <button class="order__btn order__btn-cancel btn_hover " onclick="openModal(0,0,{{item2.id}})" >Hủy đơn hàng</button>
+                            {% if item2.status == 'Chờ xác nhận' %}
+                                <button class="order__btn order__btn-approve btn_hover " onclick="openModal(1,{{item2.address.id}},{{item2.id}})">Thay đổi địa chỉ</button>
+                            {% endif %}
+                            <button class="order__btn order__btn-approve btn_hover btn_disable">Đã nhận được hàng</button>
+                        {% endif %}
+                        {% if  item2.status == 'Đang giao'  %}
+                            <button class="order__btn order__btn-cancel btn_hover btn_disable ">Hủy đơn hàng</button>
+                            <button class="order__btn order__btn-approve btn_hover" onclick='updateOrderAction("{% url 'orderSuccess' item2.id %}")'>Đã nhận được hàng</button>
+                        {% endif %}
+
+                        {% if item2.status == 'Giao thành công' or item2.status == 'Đã hủy'%}
+                            {% if item2.status == 'Giao thành công' %}
+                                <button class="order__btn order__btn-cancel btn_hover " onclick="openModal(0,0,{{item2.id}})" >Trả hàng/Hoàn tiền</button>
+                            {% endif %}
+                            <a href="{% url "productdetail" item2.color_size.color.product.id %}" style='text-align:center;' class="order__btn order__btn-buyagain btn_hover">Mua lại</a>
+                        
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+</div>    
+<form id="order_action" method="POST">
+    {% csrf_token %}
+</form>
+<div class="modal">
+    <form method="POST" class="order__cancel-form">
+        {% csrf_token %}
+        <h3 class="order__cancel-form-header">Cho chúng tôi biết lí do bạn hủy đơn</h3>
+        <div class="order__cancel-form-container">
+            <div class="order__cancel-form-group">
+                <input type="checkbox" name="cancel[]" style="transform: scale(1.23);">
+                <label class="order__cancel-form-label" for="">Đặt nhầm đơn hàng</label>
+            </div>
+            <div class="order__cancel-form-group">
+                <input type="checkbox" name="cancel[]" style="transform: scale(1.23);">
+                <label class="order__cancel-form-label" for="">Tìm thấy giá tốt hơn ở nơi khác</label>
+            </div>
+            <div class="order__cancel-form-group">
+                <input type="checkbox" name="cancel[]" style="transform: scale(1.23);">
+                <label class="order__cancel-form-label" for="">Thay đổi ý định</label>
+            </div>
+            <div class="order__cancel-form-group">
+                <input type="checkbox" name="cancel[]" style="transform: scale(1.23);">
+                <label class="order__cancel-form-label" for="">Thời gian giao hàng quá lâu</label>
+            </div>
+            <div class="order__cancel-form-group">
+                <input type="checkbox" name="cancel[]" style="transform: scale(1.23);">
+                <label class="order__cancel-form-label" for="">Đặt sai sản phẩm</label>
+            </div>
+            <div class="order__cancel-form-group">
+                <input type="checkbox" name="cancel[]" style="transform: scale(1.23);">
+                <label class="order__cancel-form-label" for="">Vấn đề thanh toán</label>
+            </div>
+            <div class="order__cancel-form-group">
+                <input type="checkbox" name="cancel[]" style="transform: scale(1.23);">
+                <label class="order__cancel-form-label" for="">Vấn đề với dịch vụ khách hàng</label>
+            </div>
+           
+            
+            <div class="order__cancel-form-group">
+                <label style="font-weight: 500; line-height: 2rem;" class="order__cancel-form-label" for="">Lý do khác:</label>
+                <textarea  placeholder="Vui lòng góp ý" class="order__cancel-form-textarea" name="opinion" ></textarea>
+            </div>
+        </div>
+        <div class="order__cancel-form-btn-container">
+            <button class="order__cancel-form-btn btn_hover">
+                Xác nhận
+            </button>
+            <button type="button" onclick="closeModal()" class="order__cancel-form-btn order__cancel-form-btn-cancel btn_hover">
+                Hủy
+            </button>
+        </div>
+        
+    </form>
+
+</div>
+
+<div class="modal">
+    <form class="payment__modal-form-change-addr" method="POST">
+        {% csrf_token %}
+        <h3 class="payment__modal-form-header">Địa Chỉ Của Tôi</h3>
+        <div style="max-height: 380px; overflow-y: scroll; border-bottom: 1px solid #cccccc;">
+            {% for item in address %} 
+                <div class="payment__modal-form-group" >
+                    <input class="payment__modal-form-radio " type="radio" name="address" value='{{item.id}}'>
+                    <div>
+                        <label for="address1">
+                            <strong>{{item.receiver}}</strong> {{item.phone |format_phone}} 
+                            {% if item is payment.address.0 %}<span style="color: red; border: 1px solid red; padding: 1px;">Mặc định</span>{% endif %}<br>
+                            {{item.detail}}<br>
+                            {{item.commune}}, {{item.district}}, {{item.province}}<br>
+                            
+                        </label>
+                        
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+    
+        <div class="payment__modal-form-group" style="float: right;margin-top: 100px;">
+            <button class="payment__modal-form-btn payment__form-modal-cancel btn_hover" type="button" onclick="closeModal()">Hủy</button>
+            <button class="payment__modal-form-btn btn_hover" type="submit" >Xác nhận</button>
+        </div>
+    </form>
+    </div>
+</body>
+
+<script>
+   
+    
+window.addEventListener('load',(e)=>{
+    _$=document.querySelector.bind(document)
+    _$$=document.querySelectorAll.bind(document)
+    var order__container=_$$('.order__container')
+    var order_header_item=_$$('.order__header-item')
+    var trc=0
+    let order_header_active_line=_$('.order__header-active-line')
+    order_header_active_line.style.left=order_header_item[0].offsetLeft+'px'
+    order_header_active_line.style.width=order_header_item[0].offsetWidth+'px'
+
+    for(let item of order_header_item){
+        item.onclick=function(){
+            let idx=Array.prototype.indexOf.call(order_header_item,this)
+            order__container[trc].style.display='none'
+            order__container[idx].style.display='block'
+            trc=idx
+            console.log(idx)
+            let order_header_active_line=_$('.order__header-active-line')
+            order_header_active_line.style.left=this.offsetLeft+'px'
+            order_header_active_line.style.width=this.offsetWidth+'px'
+            let order__header_active=_$('.order__header-active')
+            order__header_active.classList.remove('order__header-active')
+            this.classList.add('order__header-active')
+        }
+    }
+})
+
+
+</script>
+
+<script src="https://esgoo.net/scripts/jquery.js"></script>
+<script src="{% static "/js/modal-info.js" %}"></script>
+
+<script>
+    {% if message %}
+        renderModalSuccess("{% static '/assets/img/success.png'%}","{{message}}")
+    {% endif %}
+    function openModal(idx,address_id,order_id){
+        console.log('cc')
+        $('.modal').eq(idx).css('display','flex')
+        if(idx===1){
+            $(`input[value="${address_id}"]`).prop('checked','true')
+            $('.payment__modal-form-change-addr').attr('action',`/my-order/address/${order_id}`)
+        }else{
+            $('.order__cancel-form').attr('action',`/my-order/delete/${order_id}`)
+        }
+    }
+
+    function closeModal(){
+        $('.modal').css('display','none')
+        $.each($('.modal').find('input[type="checkbox"]'),function(){
+            this.checked=false            
+        })
+        $('.modal').find('textarea').val('')
+    }
+
+    function updateOrderAction(url){
+        $('#order_action').attr('action',url)
+        document.querySelector('#order_action').submit()
+    }
+    $(".copiCodeOrder").click( function (e) {
+        var text = e.target.previousElementSibling.textContent;
+        var tempTextArea = document.createElement('textarea');
+        tempTextArea.value = text; 
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempTextArea);
+        var html='<p id="copy">Copied!</p>'
+        e.target.innerHTML+=html
+        e.target.lastChild.classList.add("copy__open")
+        setTimeout(function(){
+            e.target.lastChild.classList.remove("copy__open")
+            setTimeout(function(){
+                e.target.lastChild.remove()
+            },500)
+            
+        },1500)
+    })
+   
+</script>
+{% endblock order %}

@@ -1,0 +1,82 @@
+{% extends "app/main.html" %}
+{% load custom_filters %}
+{% block search %}
+    <div class="main__container">
+        <div id="search">
+            <h2 class="search__header">Kết quả tìm kiếm cho "{{search}}"</h2>
+            {% if product %}
+            
+            <div class="search__btn-container">
+                <div class="search__btn-group">
+                    <p class="search__btn-container-title">Sắp xếp theo:</p>
+                    <a href="?search={{search}}&page={{product.number}}&field=price&order=desc" name="price_desc" class="search__btn btn_hover">Giá giảm dần</a>
+                    <a href="?search={{search}}&page={{product.number}}&field=price&order=asc"  name="price_asc" class="search__btn btn_hover">Giá tăng dần</a>
+                    <a href="?search={{search}}&page={{product.number}}&field=created_at&order=desc" name="created_at_desc" class="search__btn btn_hover">Mới nhất</a>
+                    <a href="?search={{search}}&page={{product.number}}&field=name&order=asc"  name="name_asc" class="search__btn btn_hover">Tên</a>
+                </div>
+                    
+                <div class="search__btn-group">
+                    <span style="color: var(--primary-05);">{{product.number}}</span>/{{pages|length}}
+                    {% if product.has_previous %}
+                        <a href="?search={{ search }}&page={{ product.previous_page_number }}&field={{field}}&order={{order}} " class="search__btn btn_hover"><i class="fa-solid fa-chevron-left"></i></a>
+                    {% endif %}
+                    {% if product.has_next %}
+                        <a href="?search={{ search }}&page={{ product.next_page_number }}&field={{field}}&order={{order}}" class="search__btn btn_hover "><i class="fa-solid fa-chevron-right"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="home__product-container-2">
+
+
+                <div class="home__products">
+                    {% for item3 in product %}
+                        <div class="home__product-item collumn-4" href="#">
+                            <span class="home__product-item-tag"><i class="fa-solid fa-check"></i> Yêu thích</span>
+                            <span class="home__product-item-tag-before"></span>
+                            <a href="{% url "productdetail" item3.product.id %}">
+                                <img class="home_product-pic" src="{{MEDIA_URL}}{{item3.color.0.img}}" alt="Product Image">
+                            </a>
+                            <p class="home_product-header">{{item3.product.name}}</p>
+                            <span class="home__product-item-ext"><i class="fa-solid fa-truck-fast"></i> Free ship extra</span>
+                            <div class="home__product-item-group">
+                                <p class="home__product-item-cost"> <del style="color: black; font-size: 1rem;">300.000đ</del> {{item3.product.price|format_currency }}</p>
+                                <p style="font-size: 0.9rem;" >Đã bán 52,7k</p>
+                            </div>
+                            
+                            <a href="{% url "productdetail" item3.product.id %}" class="home__product-item-detail btn_hover"><i class="fa-solid fa-circle-info"></i> Xem chi tiết</a>    
+                            
+                        </div>
+                    
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="search__btn-container search__btn-page">
+                <div class="search__btn-group">
+                    {% if product.has_previous %}
+                        <a href="?search={{ search }}&page={{ product.previous_page_number }}&field={{field}}&order={{order}} " class="search__btn btn_hover"><i class="fa-solid fa-chevron-left"></i></a>
+                    {% endif %}
+                    <div>
+                        {% for i in pages %}
+                            <a href="?search={{ search }}&page={{i}}&field={{field}}&order={{order}}" class="search__btn btn_hover search__btn-page-item {% if i == product.number %}search__btn-page-item-active{% endif %}">{{i}}</a>
+                        {% endfor %}
+                    </div>
+                    {% if product.has_next %}
+                        <a href="?search={{ search }}&page={{ product.next_page_number }}&field={{field}}&order={{order}}" class="search__btn btn_hover "><i class="fa-solid fa-chevron-right"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+                <p style="width: 100%;
+                    font-size: 1.3rem;
+                    text-align: center;
+                    margin-top: 33px;">
+                Không có sản phẩm nào tương tự.<p>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        var sort_btn_action="{{field|add:"_" |add:order}}"
+        document.querySelector(`.search__btn[name=${sort_btn_action}]`).classList.add("search__btn-active")
+    </script>
+
+{% endblock search %}

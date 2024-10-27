@@ -1,0 +1,67 @@
+{% extends "app/main.html" %}
+{% load static %}
+{% load socialaccount%}
+{% block login %}
+
+<div class="main__container">
+
+    <div style="display: flex; align-items: center; flex-direction: column;">
+         
+       {% if error %}
+                <p class="error">{{error}}</p>
+       {% endif %} 
+       {% for item in messages  %}
+            <p class="error" style="{% if item.tags == 'success' %}background-color:#00800021; border:1px solid green;{% endif %}">{{item}}</p>
+        {% endfor %}
+
+        <div id="login" class="login-register__active">
+            <a href="{% url "register" %}" class="login_register-btn link_hover">
+                Đăng kí
+            </a>
+            <form  id="login__form" method="POST" action="{% url "login" %}" class="login__form">
+                {% csrf_token %}
+                <h2 class="login__title" >Đăng nhập</h2>
+                <div class="login__input-group">
+                     <label for="username">Tên đăng nhập:</label><br>
+                     <input name="username" class="login__input" type="text" id="username" placeholder="Tên đăng nhập" required>
+                 </div>
+             
+                 <div class="login__input-group">
+                     <label for="password">Mật khẩu:</label><br>
+                     <input name="password" class="login__input" type="password" id="password" placeholder="Mật khẩu" required>
+                 </div>
+                <div class="login__btn-container">
+                    <a class="link_hover"  style="color: var(--link-color);" href="{% url "forgetPassword" %}">Quên mật khẩu?</a>
+                    <input class="login__btn btn_hover" type="submit" value="Đăng nhập">
+                </div>
+            </form>
+            <button type="button" onclick="navigateToURL('{% url "facebook_login" %}')" class="login__fb btn_hover">
+                <img src="{% static '/assets/img/facebook_logo.png'  %}" alt="">
+                Đăng nhập bằng Facebook</button>
+            <button type="button" onclick="navigateToURL('{% provider_login_url 'google' method="oauth2" %}')" class="login__google btn_hover">
+                <img src= {% static "/assets/img/google_logo.png" %} alt="">
+                Đăng nhập bằng Google
+            </button>
+        </div>
+
+    </div>
+
+
+ </div>
+ <script src={% static "/js/validate.js" %}></script>
+
+ <script>
+    Validator({
+        form:'#login__form',
+        rules:[
+            Validator.isRequired('#username'),
+            Validator.isUsername('#username'),
+            Validator.isRequired('#password'),
+        ]
+
+    })
+    function navigateToURL(url) {
+        window.location.href = url;
+    }
+</script>
+{% endblock login %}

@@ -1,0 +1,143 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static "/css/base.css" %}">
+    <link rel="stylesheet" href="{% static "/css/authenticate.css" %}">
+    <link rel="stylesheet" href="{% static "/css/order.css" %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <title>Document</title>
+</head>
+<body>
+
+    <div class="authenticateHeader">
+            <a href="{% url "home" %}" class="authenticateHeader__icon">
+                Sopi          
+            </a>
+            <h2 class="authenticateHeader__title"><i class="fa-solid fa-magnifying-glass"></i> Tra cứu đơn hàng </h2>
+    </div>
+
+    <div class="main__container authenticateBody">
+        {% for item in messages  %}
+            <p class="error"  style="margin-bottom:40px; {% if item.tags == 'success' %}background-color:#00800021; border:1px solid green;{% endif %} display:none">{{item}}</p>
+        {% endfor %}
+
+        <div class="loading__group" style="display: flex; flex-direction: column; align-items: center;">
+            <div class="loading"></div>
+            <p class="loading__title" for="">Đang tải</p>
+
+        </div>
+        {% if not order  %}
+        
+            <form style="display: none;" method="POST" action="{% url "lookupOrderResult" %}" class="authenticateform">               
+                {% csrf_token %}
+                <button type="button" onclick="window.history.back();" class="link_hover authenticateform__backward">
+                    <i class="fa-solid fa-left-long"></i>
+                </button>
+            <h2 class="authenticateBody__title">Tra cứu đơn hàng</h2>
+                <div class="authenticateform__group">
+                    <label class="authenticateform__group-label" for="code">Vui lòng nhập mã đơn hàng:</label><br>
+                    <div class="authenticateform__group-container">
+                        <input class="authenticateform__group-input" name="code" placeholder="Mã đơn hàng">
+                    </div>
+                </div>
+            <button class="authenticateform__group-btn btn_hover" type="submit">Xác nhận</button>
+        </form>
+        {% else %}
+        <button style="position:unset;display:none; margin-bottom:24px;" type="button" onclick="window.history.back();" class="link_hover authenticateform__backward">
+            <i class="fa-solid fa-left-long"></i> Tra cứu tiếp
+        </button>
+        {% for item in listOrderItem  %}
+                <div class="order__item" style="display:none;">
+                    <p class="order__item-status">
+                        <i class="fa-solid fa-truck-fast"></i> {{item.status}}
+                    </p>
+                    <div class="order__product-container" >
+                        <div class="order__product-img">
+                            <img src="{{MEDIA_URL}}{{item.color_size.color.img}}" alt="" height="150" style="margin-right: 24px;">
+                            <div style="align-self: flex-start;">
+                                <h3 class="order__product-title">
+                                   {{item.color_size.color.product.name}}
+                                </h3>
+                                <span>
+                                    Phân loại hàng : {{item.color_size.color.color}}, {{item.color_size.size.size}}
+                                </span>
+                                <br>
+                                <span>x{{item.quantity}}</span>
+                                <br>
+                                <small style="color: #5ADAC8; border: 1px solid #5ADAC8; padding: 2px;">Trả hàng miễn phí 15 ngày</small>
+                            </div>
+                        </div>
+                        <div style="display: flex;">
+                            <del style="margin-right: 12px;">300.000đ</del>
+                            <span style="color: red; font-size: 1.3rem; font-weight: 500;"> {{item.color_size.color.product.price|format_currency}}</span>
+                        </div>
+                    </div>
+                    <div class="order__total">
+                        <p style="line-height: 1.6rem;">
+                            <strong>Đặt hàng lúc:</strong> {{item.order.created_at|date:"H:i j/n/Y"}} GTM +7
+                            {% if item.status == 'Giao thành công' %}
+                                <br><Strong>Nhận hàng lúc:</Strong> {{item.delivered_at|date:"H:i j/n/Y"}}
+                            {% endif %}
+                            {% if item.status == 'Đã hủy' %}
+                                <br><Strong>Hủy đơn lúc:</Strong> {{item.delivered_at|date:"H:i j/n/Y"}}
+                            {% endif %}
+                            <br>
+                            <span>
+                                <strong>Người nhận: </strong>
+                                 {{item.receiver}} ({{item.phone}}) {{item.detail}}
+                                 {{item.commune}}, {{item.district}}, {{item.province}}
+                             </span> 
+                             <br>
+                             <strong>Mã đơn hàng: </strong><span class="codeOrder link_hover"> {{item.order.code}}</span>
+                             <button class="copiCodeOrder link_hover" style="color:var(--primary);font-size:1.1rem; position:relative;" >Sao chép</button>
+                        </p>
+                        <span style="margin-right: 12px;">
+                            <strong>Thành tiền:</strong>
+                            <strong style="font-size: 1.6rem; color: red;"> {{item.total|format_currency}}</strong>
+                        </span>
+                    </div>
+
+                </div>
+                {% endfor %}
+        {% endif %}
+    </div>
+<script src="https://esgoo.net/scripts/jquery.js"></script>
+<script src={% static "/js/modal-info.js" %}></script>
+<script>
+    setTimeout(function(){
+        $(".authenticateform").css("display","flex")
+        $(".loading__group").remove()
+        {% if messages %}
+            $(".error").css("display","block")
+        {% endif %}
+        $('.order__item').css("display",'block')
+        $('.authenticateform__backward').css("display",'block')
+    },1000)
+    $(".copiCodeOrder").click( function (e) {
+        var text = e.target.previousElementSibling.textContent;
+        var tempTextArea = document.createElement('textarea');
+        tempTextArea.value = text; 
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempTextArea);
+        var html='<p id="copy">Copied!</p>'
+        e.target.innerHTML+=html
+        e.target.lastChild.classList.add("copy__open")
+        setTimeout(function(){
+            e.target.lastChild.classList.remove("copy__open")
+            setTimeout(function(){
+                e.target.lastChild.remove()
+            },500)
+            
+        },1500)
+    })
+</script>    
+</body>
+
+</html>

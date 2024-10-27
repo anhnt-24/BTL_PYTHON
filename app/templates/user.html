@@ -1,0 +1,106 @@
+{% extends "app/main.html" %}
+{% block user %}
+{% load static %}
+<div class="main__container">
+    <div id="user">
+        <h2 class="user__header">Hồ sơ của tôi</h2>
+        <p class="user__subheader">Quản lý thông tin hồ sơ để bảo mật tài khoản</p>
+        <form id="updateUser" style="width:100%; display:flex; justify-content: center;" enctype="multipart/form-data" method='POST' action="{% url 'userUpdate' %}"> 
+            {% csrf_token %}
+            <div class="user__container" >
+                <div class="user__form">
+                    <div class="user__form-group">
+                        <label for="username" class="user__label">Tên đăng nhập:</label>
+                        <input type="text" id="username" name="username" class="user__input" value="{{user}}" disabled>
+                    </div>
+                    
+                    <div class="user__form-group">
+                        <label for="name" class="user__label">Tên:</label>
+                        <input type="text" id="name" name="name" class="user__input" placeholder="" value="{% if name %}{{name}}{% endif %}">
+                    </div>
+                    
+                    <div class="user__form-group">
+                        <label for="email" class="user__label">Email:</label>
+                        {% if email %}
+                            <input type="email" id="email" class="user__input" value="{{email}}" disabled >
+                            <a href="{% url "sendChangeEmail" %}" class="user__link">Thay đổi</a>
+                            {% else %}
+                            <input type="email" id="email" class="user__input" value="{{email}}" disabled > <br>
+
+                        {% endif %}
+
+                    </div>
+                    
+                    <div class="user__form-group">
+                        <label for="phone" class="user__label">Số điện thoại:</label>
+                        {% if phone %}
+                            <input type="text" id="phone" class="user__input" value="{{phone}}" disabled>
+                            <a href="{% url "sendChangePhone" %}" class="user__link">Thay đổi</a>
+                        {% else %}
+                            <input type="text" id="phone" class="user__input" value="{{phone}}" disabled><br>
+                        {% endif %}
+
+                    </div>
+                    
+                    <div class="user__form-group">
+                        <label class="user__label">Giới tính:</label>
+                        <input type="radio" id="male" name="gender" class="user__radio" value="Male">
+                        <label for="male" class="user__label">Nam</label>
+                        <input type="radio" id="female" name="gender" class="user__radio" value="Female" >
+                        <label for="female" class="user__label">Nữ</label>
+                        <input type="radio" id="other" name="gender" class="user__radio" value="Other">
+                        <label for="other" class="user__label">Khác</label>
+                    </div>
+                    
+                    <div class="user__form-group">
+                        <label for="dob" class="user__label">Ngày sinh:</label>
+                        <input type="date" id="dob" name="dob" class="user__input" value="{% if customer%}{{birth}}{% endif %}" >
+                    </div>
+                    
+                    <button type="submit" class="user__button btn_hover">Xác nhận</button>
+                </div>
+        
+                <div class="user__profile-picture">
+                    <img src="{% if userimg %}{{MEDIA_URL}}/{{userimg}}{% else %}{% static "/assets/img/default_user-img.png" %}{% endif %}" alt="Profile Picture" class="user__image">
+                    <input type="file" class="user__input-file" name="file" id="file">
+                    <label for="file"><i class="fa-solid fa-upload"></i> Tải tệp lên</label>
+                    <p class="user__file-info">Dung lượng file tối đa 1 MB<br>Định dạng:.JPEG, .PNG</p>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="https://esgoo.net/scripts/jquery.js"></script>
+<script src="{% static "/js/modal-info.js" %}"></script>
+
+<script>
+
+    {% if updateUser %}
+        renderModalSuccess("{% static '/assets/img/success.png' %}",'Cập nhật thành công')
+    {% endif %}
+    
+    var gender = document.querySelector('input[value="{{gender}}"]')
+    gender.checked = true
+    var filelabletitlte=document.querySelector('label[for="file"]').innerHTML
+    $('input[name="file"]').change((e)=>{
+        $('label[for="file"]').html(e.target.value || filelabletitlte)  
+    })
+
+
+</script>
+<script src={% static "/js/validate.js" %}></script>
+
+ <script>
+    Validator({
+        form:'#updateUser',
+        rules:[
+            Validator.isEmail('input[name="email"]'),
+            Validator.isPhone('input[name="phone"]'),
+        ]
+
+    })
+    function navigateToURL(url) {
+        window.location.href = url;
+    }
+</script>
+{% endblock user %}

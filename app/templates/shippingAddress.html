@@ -1,0 +1,247 @@
+{% extends "app/main.html" %}
+{% load static %}
+{% block useraddress %}
+<div class="main__container">
+    <div id="address">
+        
+        <div class="address_group">
+            <h2 class="address__header">Địa chỉ của tôi</h2>
+            <button class="address__add-new btn_hover btn_hover" onclick="openModal('{% url "createAddress" %}')" ><i class="fa-solid fa-plus"></i> Thêm địa chỉ mới</button>
+        </div>
+        {% if not listAddress %}
+                <p style="font-size:1.2rem; width:100%; text-align:center;margin-top:48px">Bạn chưa có địa chỉ nào! <button class='link_hover' style="font-size:1.2rem; color:var(--link-color);" onclick="openModal('{% url "createAddress" %}')" > Nhấn vào đây để thêm địa chỉ mới</button></p>
+            {% endif %}
+        <div class="address__container">
+            {% for address in listAddress %}
+                <div class="address_group address-item">
+                    <div>
+                        <p><strong style="font-size:1.2rem">{{address.receiver}}</strong> (+84) {{address.phone}}{% if address.default %}<span style="border: 1px solid red; color: red; padding: 2px; margin-left:10px;">Mặc định</span>{% endif %}</p>
+                        <p>{{address.detail}}</p>
+                        <p>{{address.commune}}, {{address.district}}, {{address.province}}</p>
+                    </div>
+                    <div>
+                        <div>
+                            {% if not address.default  %}<a href="{% url "deleteAddress" address.id %}" class="address__btn-action">Xóa</a>{% endif %}
+                            <a style="cursor:pointer;" class="address__btn-action" onclick="updateModal('{% url "updateAddress" address.id %}','{{address.id_province}}','{{address.id_district}}','{{address.id_commune}}','{{address.receiver}}','{{address.phone}}','{{address.detail}}')" >Cập nhật</a>
+                        </div>
+                        <button  class="address__btn-setdefault {% if not address.default %}btn_hover{% endif %}" onclick="navigateToURL('{% url "setDefaultAddr" address.id %}')" {% if address.default %} disabled {% endif %}>Thiết lập mặc định</button>
+                    </div>
+                </div>
+            {% endfor %}
+            
+        </div>
+    </div>
+</div>    
+<div class="modal">
+<form  method="POST" class="address__form-add">
+    {% csrf_token %}
+    <h3 class="address__form-add-header">Địa chỉ mới</h3>
+    <div>
+        <div class="address__form-add-group">
+            <label for="name">Họ và tên</label> <br>
+            <input id="receiver" class="address__form-add-input" type="text"  name="receiver" placeholder="Họ và tên" required>
+        </div>
+        <div class="address__form-add-group">
+            <label for="name">Số điện thoại</label><br>
+            <input id="phone" class="address__form-add-input" type="text" name="phone"  placeholder="Số điện thoại" required>
+        </div >
+        <div class="address__form-add-group">
+            <label for="city" class="">Tỉnh/Thành Phố</label><br>
+            <select class="address__form-add-input" id="tinh" data-content="Tỉnh/Thành Phố" data-stand="province" name="id_province" title="Chọn Tỉnh Thành" >
+                <option value="0" >Tỉnh Thành</option>
+            </select> 
+        </div>
+        
+        <div class="address__form-add-group">
+            <label for="district" class="">Quận/Huyện</label><br>
+            <select class="address__form-add-input"  id="quan"  data-content="Quận/Huyện" data-stand="district" name="id_district" title="Chọn Quận Huyện">
+                <option value="0">Quận Huyện</option>
+            </select> 
+        </div>
+        
+        <div class="address__form-add-group">
+            <label for="ward" class="">Phường/Xã</label><br>
+            <select class="address__form-add-input"  id="phuong" data-content="Phường/Xã" data-stand="commune" name="id_commune" title="Chọn Phường Xã">
+                <option value="0">Phường Xã</option>
+            </select>
+        </div>
+        <div class="address__form-add-group">
+            <label for="">Địa chỉ cụ thể</label><br>
+            <input id="detail" class="address__form-add-input" type="text" name="detail" placeholder="Địa chỉ" required>
+        </div>
+    </div>
+    <div style="display: none;">
+        <input type="text" name="province">
+        <input type="text" name="district">
+        <input type="text" name="commune">
+    </div>
+    <div style="float: right;margin-top: 24px;">
+        <button class="address__form-add-btn address__form-add-cancel btn_hover" type="button" onclick="closeModal()">Hủy bỏ</button>
+        <button class="address__form-add-btn btn_hover" type="submit">Hoàn thành</button>
+    </div>
+</form>
+</div>
+</body>
+
+<script src="{% static '/js/validate.js' %}"></script>
+<script>
+    Validator({
+           form:'.address__form-add',
+           rules:[
+                Validator.isRequired('#receiver'),
+                Validator.isRequired('#phone'),
+                Validator.isPhone('#phone'),
+                Validator.isRequired('#detail'),
+               Validator.isSelected('#tinh'),
+               Validator.isSelected('#quan'),
+               Validator.isSelected('#phuong'),
+           ]
+
+       })
+</script>
+<script src="https://esgoo.net/scripts/jquery.js"></script> 
+<script src="{% static '/js/modal-info.js' %}"></script>
+<script>
+        {% if message %}
+            renderModalSuccess('{% static "/assets/img/success.png" %}','{{message}}')
+        {% endif %}
+        
+        function updateModal(urlupdate,id_province,id_district,id_commune,receiver,phone,detail){     
+            $.getJSON(`https://esgoo.net/api-tinhthanh/2/${id_province}.htm`,function(data_quan){	       
+                if(data_quan.error==0){
+                    $("#quan").html('<option value="0">Quận Huyện</option>');  
+                    $("#phuong").html('<option value="0">Phường Xã</option>');   
+                        $.each(data_quan.data, function (key_quan,val_quan) {
+                            $("#quan").append('<option value="'+val_quan.id+'">'+val_quan.full_name+'</option>');
+                        });
+                        
+                    $.getJSON(`https://esgoo.net/api-tinhthanh/3/${id_district}.htm`,function(data_phuong){	       
+                        if(data_phuong.error==0){
+                            $("#phuong").html('<option value="0">Phường Xã</option>');   
+                            $.each(data_phuong.data, function (key_phuong,val_phuong) {
+                                $("#phuong").append('<option value="'+val_phuong.id+'">'+val_phuong.full_name+'</option>');
+                            });
+                        }
+                        $('[name="id_province"]').val(`${id_province}`);
+                        $('[name="id_district"]').val(`${id_district}`);
+                        $('[name="id_commune"]').val(`${id_commune}`);
+                        $('[name="receiver"]').val(`${receiver}`);
+                        $('[name="phone"]').val(`${phone}`);
+                        $('[name="detail"]').val(`${detail}`);
+                        $('.address__form-add').attr('action',`${urlupdate}`)
+                        $('.modal').css('display','flex') 
+                    });    
+                }
+            })
+            
+              
+            $("#quan").change(function(e){
+                $('input[name="detail"]').val('')
+                var idquan=$(this).val();
+                $.getJSON('https://esgoo.net/api-tinhthanh/3/'+idquan+'.htm',function(data_phuong){	       
+                    if(data_phuong.error==0){
+                        $("#phuong").html('<option value="0">Phường Xã</option>');   
+                        $.each(data_phuong.data, function (key_phuong,val_phuong) {
+                            $("#phuong").append('<option value="'+val_phuong.id+'">'+val_phuong.full_name+'</option>');
+                        });
+                    }
+                });
+            });
+            $("#phuong").change(function(){
+                $('input[name="detail"]').val('')
+            })
+        }
+
+
+    // SELECT 
+    $(document).ready(function() {
+        //Lấy tỉnh thành
+        $.getJSON('https://esgoo.net/api-tinhthanh/1/0.htm',function(data_tinh){	       
+            if(data_tinh.error==0){
+               $.each(data_tinh.data, function (key_tinh,val_tinh) {
+                  $("#tinh").append('<option value="'+val_tinh.id+'">'+val_tinh.full_name+'</option>');
+               });
+               $("#tinh").change(function(e){
+                    $('input[name="detail"]').val('')
+                    var idtinh=$(this).val();
+                    //Lấy quận huyện
+                    $.getJSON('https://esgoo.net/api-tinhthanh/2/'+idtinh+'.htm',function(data_quan){	       
+                        if(data_quan.error==0){
+                           $("#quan").html('<option value="0">Quận Huyện</option>');  
+                           $("#phuong").html('<option value="0">Phường Xã</option>');   
+                           $.each(data_quan.data, function (key_quan,val_quan) {
+                              $("#quan").append('<option value="'+val_quan.id+'">'+val_quan.full_name+'</option>');
+
+                           });
+                           //Lấy phường xã  
+                           $("#quan").change(function(e){
+                              $('input[name="detail"]').val('')
+                                console.log('cc')
+                                var idquan=$(this).val();
+                                $.getJSON('https://esgoo.net/api-tinhthanh/3/'+idquan+'.htm',function(data_phuong){	       
+                                    if(data_phuong.error==0){
+                                       $("#phuong").html('<option value="0">Phường Xã</option>');   
+                                       $.each(data_phuong.data, function (key_phuong,val_phuong) {
+                                          $("#phuong").append('<option value="'+val_phuong.id+'">'+val_phuong.full_name+'</option>');
+                                       });
+                                    }
+                                });
+                           });
+                        
+                        }
+
+                    });
+                    $("#phuong").change(function(){
+                        $('input[name="detail"]').val('')
+                    })
+
+               });   
+                
+            }
+        });
+
+    });
+    function openModal(url){
+        $('.address__form-add').attr('action',`${url}`)
+        $('.modal').css('display','flex')
+    }
+
+    function closeModal(){
+        $('.modal').css('display','none')
+        $('.modal').find('input[type!="hidden"]').val('')
+        $("#quan").html('<option value="0">Quận Huyện</option>');  
+        $("#phuong").html('<option value="0">Phường Xã</option>');   
+        $('.modal').find('select').val('0')
+    }
+     
+    
+   
+
+   
+        $('.address__form-add').on('submit', function(e) {
+            var valid = true;
+            $('select').each(function() {
+                if ($(this).val() === '0') {
+                    alert(`Vui lòng chọn một giá trị hợp lệ cho trường ${this.getAttribute('data-content')}`);
+                    e.preventDefault();
+                    return false
+                }else{
+                    $(`input[name="${this.getAttribute('data-stand')}"]`).val(`${this.options[this.selectedIndex].innerText}`)
+                }
+            });
+        });
+
+        function navigateToURL(url) {
+            window.location.href = url;
+        }
+   
+
+        
+        
+
+
+
+
+ </script>
+{% endblock useraddress %}
+

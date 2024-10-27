@@ -1,0 +1,109 @@
+#address{
+    width: 100%;
+}
+.address_group{
+    background-color: white;
+    display: flex;
+    justify-content: space-between;
+    padding: 24px;
+    line-height: 1.8rem;
+    font-size: 1.1rem;
+    border-bottom: 1px solid rgb(201, 201, 201);
+}
+.address__header{
+    align-content: center;
+}
+
+.address__add-new{
+    background-color: var(--primary);
+    color:var(--font-3);
+    border-radius: 2px;
+    padding: 14px 30px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.address__btn-action{
+    color: var(--link-color);
+    margin-left: 24px;
+    font-size: 1.1rem;
+    float: right;
+    margin-bottom: 12px;
+    cursor: pointer;
+}
+.address__btn-setdefault{
+    border: 1px solid rgb(152, 150, 150);
+    background-color: rgb(246, 246, 246);
+    color: black;
+    border-radius: 2px;
+    padding: 6px 24px;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+.address__container{
+    padding: 0 24px;
+    background-color: white;
+    min-height: 600px;
+}
+.address-item{
+    color: var(--font-1);
+    border-bottom: 1px solid rgb(201, 201, 201);
+    
+}
+
+.address__form-add{
+    padding: 24px;
+    background-color: white;
+    width: 500px;
+    border-radius: 5px;
+    animation: fadeIn ease-in 0.2s;
+
+}
+.address__form-add label{
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+.address__form-add-header{
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgb(182, 182, 182);
+    padding-bottom: 12px;
+    font-size: 1.4rem;
+    color: var(--font-1);
+}
+.address__form-add-group{
+    width: 100%;
+}
+.address__form-add-input{
+    width: 100%;
+    box-sizing: border-box;
+    height: 38px;
+    color: var(--font-1);
+    margin-bottom: 8px;
+    font-size: 1rem;
+    outline-color: var(--primary);
+
+}
+.address__form-add-btn{
+    font-weight: 500;
+
+    width: fit-content;
+    padding: 10px 32px;
+    background-color: var(--primary);
+    color: var(--font-3);
+    border-radius: 2px;
+    border: none;
+    font-size: 1.1rem;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.address__form-add-cancel{
+    background-color: var(--primary-05);
+    margin-right: 12px;
+}
+.address__btn-setdefault:disabled{
+    opacity: 0.6;
+    cursor: default;
+}

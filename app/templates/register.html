@@ -1,0 +1,71 @@
+{% extends "app/main.html" %}
+{% block register %}
+{% load static %}
+<div class="main__container">
+    <div style="display: flex; align-items: center; flex-direction: column; min-height: 1000px;">
+        {% if error %}
+            <p class="error">{{error}}</p>
+        {% endif %} 
+        <div id="register">
+            <a href="/login" class="login_register-btn link_hover">
+                Đăng nhập
+            </a>
+            <form id="register__form" class="login__form" action={% url "register" %} method="POST">
+                {% csrf_token %}
+                <h2 class="login__title">Đăng Kí</h2>
+        
+                <div class="register__input-group">
+                    <label for="username">Tên đăng nhập:</label><br>
+                    <input class="login__input" type="text" name="username" id="username" placeholder="Tên đăng nhập" required>
+                </div>
+                
+                <div class="register__input-group">
+                    <label for="password">Mật khẩu:</label><br>
+                    <input class="login__input" type="password" name="password" id="password" placeholder="Mật khẩu" required>
+                </div>
+                
+                <div class="register__input-group">
+                    <label for="confirm_password">Xác nhận mật khẩu:</label><br>
+                    <input class="login__input" type="password" name="confirm_password" id="confirm_password" placeholder="Xác nhận mật khẩu" required>
+                </div>
+                
+                <div class="register__input-group">
+                    <label for="email">Email:</label><br>
+                    <input class="login__input" type="text" name="email" id="email" placeholder="Email" required>
+                </div>
+                
+                <div class="register__input-group">
+                    <label for="phone">Số điện thoại:</label><br>
+                    <input class="login__input" type="text" name="phone" id="phone" placeholder="Số điện thoại" required>
+                </div>
+                
+                <input class="register__btn login__input btn_hover" type="submit" value="Đăng kí">
+                
+            </form>
+            <p  style="padding-bottom: 12px;">Tôi đã có tài khoản? <a href={% url "login" %} class="register__login link_hover" href="">Đăng nhập</a></p>
+        </div>
+    </div>
+</div>
+<script src={% static "/js/validate.js" %}></script>
+<script>
+
+    Validator({
+        form:'#register__form',
+        rules:[
+            Validator.isRequired('#username'),
+            Validator.isUsername('#username'),
+            Validator.isRequired('#password'),
+            Validator.isPassword('#password'),
+            Validator.isRequired('#confirm_password'),
+            Validator.isConfirmPassword('#confirm_password',function(){
+                return document.querySelector('#password').value
+            }),
+            Validator.isRequired('#email'),
+            Validator.isEmail('#email'),
+            Validator.isRequired('#phone'),
+            Validator.isPhone('#phone'),
+        ]
+
+    })
+</script>
+{% endblock register %}

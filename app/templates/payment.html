@@ -1,0 +1,192 @@
+{% extends "app/main.html" %}
+{% load custom_filters %}
+{% load static %}
+{% block payment %}
+<div class="main__container">
+    <div id="payment">
+        <form class="payment__form" method="POST" action="{% url "addOrder" %}">
+                <!-- //Address -->
+                 {% csrf_token %}
+                <div class="payment__form-address-border"></div>
+                <div class="payment__form-address">
+                    <h2 class="payment__header">
+                        <i class="fa-solid fa-location-dot"></i>
+                        Địa Chỉ Nhận Hàng 
+                    </h2>
+                    {% if payment.addressDefault %}
+                        <div class="payment__form-address-group">
+                            <span class="payment__form-address-default">
+                                <strong style="margin-right: 12px;">{{payment.addressDefault.receiver}} ({{payment.addressDefault.phone}}) </strong>
+                            {{payment.addressDefault.detail}}, {{payment.addressDefault.commune}}, {{payment.addressDefault.district}}, {{payment.addressDefault.province}}
+                            </span> 
+                            <button class="payment__form-address-button" onclick="openModal()" type="button"> Thay đổi</button>
+                        </div>
+                        <input type="hidden" name="addressDefault" value="{{payment.addressDefault.id}}">
+                        
+                    {% else %}
+                        <p style="font-size: 1.2rem; width: 100%; text-align: center; margin-top:12px">Bạn chưa có địa chỉ nhận hàng, vui lòng 
+                            <a href="{% url "address" %}" class="link_hover" style="color: var(--link-color);"> bấm vào đây</a> 
+                        để thêm địa chỉ mới.</p>
+                    {% endif %}
+                </div>
+
+            <!-- //Address -->
+
+            <!-- OrderStatus -->
+        <div class="payment__form-container">
+
+            <h2 class="payment__header">Đơn Hàng</h2>
+            <div class="payment__form-order">
+                {% for item in payment.list  %}
+                    <div class="payment__order-summary">
+                        <div style="display:flex;align-items:center;">
+                            <img src="{{MEDIA_URL}}{{item.img}}" alt="Product Image" class="payment__image" style="margin-right: 48px;"><br>
+                            <div> 
+                                <p class="payment__product-info">
+                                <span class="payment__product-info-title"> <strong >Sản phẩm: </strong> {{item.product.name}}</span>
+                                <strong>Màu: </strong> {{item.color}}<br>
+                                <strong>Kích cỡ: </strong>{{item.size}}<br>
+                                <strong>Đơn giá: </strong> {{item.product.price}}<br>
+                                <strong>Số lượng:</strong> {{item.quantity}}</span>
+                            </div>
+                        </div>
+                        <div class="payment__price-container">
+                            <p class="payment__price"><strong style="color: var(--font-1);">Tổng:</strong> {{item.total_item|format_currency}}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div  class="payment__discount">
+                    <div>
+                        <label for="discount_code" class="payment__label">Mã Phiếu Giảm Giá:</label><br>
+                        <input type="text" id="discount" name="discount" class="payment__input" placeholder="Mã phiếu giảm giá"><br>
+                    </div>
+                    {% if payment.discount is not 0 %}
+                        <p class="payment__discount-code">
+                            <a href="{% url "paymentDiscountRemove" %}"><i class="fa-solid fa-x"></i></a> Mã {{payment.code}} giảm {{payment.discount |format_currency}} 
+                        </p>
+                    {% endif %}
+                    <button type="button" onclick="getDiscoutInput()" class="payment__button payment__button-discount btn_hover">Áp Dụng</button><br><br>
+                </div>
+                <div class="payment__summary-container">
+                    <p class="payment__summary">
+                        <span>Tạm tính: </span>
+                        <strong >{{payment.pretotal|format_currency}}</strong>
+                    </p>
+                    <p class="payment__summary">
+                        <span>Phí vận chuyển: </span>
+                        <strong>{{payment.deliveryFee |format_currency}}</strong>
+                    </p>
+                    <p class="payment__summary">
+                        <span>Mã giảm giá: </span>
+                        <strong>-{{payment.discount |format_currency}}</strong>
+                    </p>
+                </div>
+                <h3 class="payment__total" >Tổng thanh toán: <span style="color:red;"> {{payment.total|format_currency}} </span></h3>
+                <input style="display: none;" type="text" name="total" value="0" >
+            </div>
+        </div>
+            <!-- ///OrderStatus -->
+            <!-- Payment Method -->
+        <div class="payment__form-container">
+            
+            <h2 class="payment__header">Phương Thức Thanh Toán</h2>
+             <div class="payment__form-method">
+                <div class="payment__form-method-container">
+                    <label for="payment_method" class="payment__label">Vui lòng chọn phương thức thanh toán:</label><br>
+                   <div class="payment__form-group">
+                       
+                       <input type="radio" id="momo" name="payment_method" class="payment__radio" value="momo">
+                        <label for="momo" class="payment__label">Thanh toán bằng Momo</label><br>
+                        
+                   </div>
+                   <div class="payment__form-group">
+                       
+                       <input type="radio" id="visa" name="payment_method" class="payment__radio" value="visa" >
+                       <label for="visa" class="payment__label">Thanh toán bằng thẻ Visa</label><br>
+                   </div>
+                    <div class="payment__form-group">
+                        <input type="radio" id="cod" name="payment_method" class="payment__radio" value="cod">
+                        <label for="cod" class="payment__label">Thanh toán khi nhận hàng (COD)</label><br><br>
+                    </div>
+                </div>
+                 <button type="submit" class="payment__button btn_hover">Xác Nhận</button>
+             </div>
+        </div>
+            <!-- Payment Method -->
+
+        </form>
+    
+       
+    </div>
+</div>
+
+<div class="modal">
+<form class="payment__modal-form-change-addr" action="{% url "paymentAddress" %}" method="POST">
+    {% csrf_token %}
+    <h3 class="payment__modal-form-header">Địa Chỉ Của Tôi</h3>
+    <div style="max-height: 380px; overflow-y: scroll; border-bottom: 1px solid #cccccc;">
+        {% for item in payment.address  %} 
+            <div class="payment__modal-form-group" >
+                <input class="payment__modal-form-radio " type="radio" name="address" value='{{item.id}}' {% if item.id is payment.addressDefault.id %}checked{% endif %}>
+                <div>
+                    <label for="address1">
+                        <strong>{{item.receiver}}</strong> {{item.phone |format_phone}} 
+                        {% if item is payment.address.0 %}<span style="color: red; border: 1px solid red; padding: 1px;">Mặc định</span>{% endif %}<br>
+                        {{item.detail}}<br>
+                        {{item.commune}}, {{item.district}}, {{item.province}}<br>
+                        
+                    </label>
+                    
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+
+    <div class="payment__modal-form-group" style="float: right;margin-top: 100px;">
+        <button class="payment__modal-form-btn payment__form-modal-cancel btn_hover" type="button" onclick="closeModal()">Hủy</button>
+        <button class="payment__modal-form-btn btn_hover" type="submit" >Xác nhận</button>
+    </div>
+</form>
+
+
+</div>
+<form style="display:none;" class="applyDiscount" method="POST" action="{% url "paymentDiscount" %}"> 
+    {% csrf_token %}
+    <input name="discount" type="text">
+</form>
+</body>
+<script src="https://esgoo.net/scripts/jquery.js"></script>
+<script src='{% static '/js/modal-info.js' %}'></script>
+
+<script>
+        function getDiscoutInput(){
+            $(".applyDiscount").children("input[name='discount']").val($("#discount").val())
+            $(".applyDiscount").submit()
+        }     
+
+        {% if payment.message %}
+            renderModalSuccess('{% static "/assets/img/success.png" %}','{{payment.message}}')
+        {% endif %}
+        $('.payment__form').submit(function(e){
+            if($('input[name="addressDefault"]').length===0){
+                renderInforModal('Vui lòng bổ sung địa chỉ trước khi đặt hàng.',false,'')
+                e.preventDefault()  
+            }else
+            if($('input[name="payment_method"]:checked').length===0){
+                renderInforModal('Vui lòng chọn phương thức thanh toán.',false,'')
+                e.preventDefault()  
+            }
+
+        })
+        
+
+    function openModal(){
+        $('.modal').css('display','flex')
+    }
+    function closeModal(){
+        $('.modal').css('display','none')
+    }
+    </script>
+{% endblock payment %}
+

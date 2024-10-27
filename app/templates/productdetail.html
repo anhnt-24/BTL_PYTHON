@@ -1,0 +1,287 @@
+{% extends "app/main.html" %}
+{% load custom_filters %}
+{% load static %}
+{% block productdetail %}
+<div class="main__container">
+    <div id="productdetail" class="row">
+        
+        <div class="productdetail__pic-container collumn-3">
+            <img class="productdetail__main-img" src="{{MEDIA_URL}}{{product.color.0.img}}" alt="">
+            <i class="fa-solid fa-angle-left productdetail__carousel-left"></i>
+            <i class="fa-solid fa-angle-right productdetail__carousel-right"></i>
+            <div class="productdetail__carousel">
+                {% for item in product.color  %}
+                    <img class="productdetail__carousel-item" src="{{MEDIA_URL}}{{item.img}}" alt="">
+                {% endfor %}
+            
+
+            </div>
+            <div class="productdetail__status-container">
+                <div class="productdetail__staus-share">
+                    Chia sẻ:
+                    <a href="">
+
+                        <img src='{% static "/assets/img/Facebook.png"  %}' alt="" class="productdetail__staus-share-item">
+                    </a>
+                    <a href="">
+                        <img src='{% static "/assets/img/Pinterest.png"  %}' alt="" class="productdetail__staus-share-item">
+                    </a>
+                    <a href="">
+                        <img src='{% static "/assets/img/Messenger.png"  %}' alt="" class="productdetail__staus-share-item">
+                    </a>
+
+                </div>
+                <div class="productdetail__status-like">
+                    <i style="margin-right: 6px;" class="fa-regular fa-heart"></i>
+                    Thích
+                </div>
+            </div>
+        </div>
+        <div class="productdetail__detail collumn-6">
+            <h2 class="productdetail__header">{{product.product.name}}</h2>
+            <form class="productdetail__info-container" action="" method="POST">
+                {% csrf_token %}
+                <div class="productdetail__info-group">
+                    <label class="productdetail__info-label" for="color">Giá: </label>
+                    <input style="color:red; font-weight:500;font-size:1.8rem;" type="text" class="productdetail__info-input" value="{{product.product.price |format_currency}}" disabled>
+                    <input type="text" name="price" value="{{product.product.price}}" style="display: none;">
+                </div>
+                <div class="productdetail__info-group">
+                    <label class="productdetail__info-label" for="input">Bảo hiểm: </label>
+                    <input type="text" class="productdetail__info-input" name="insurance" value="Bảo hiểm thời trang" disabled>
+                    <input type="text" name="insurance" value="Bảo hiểm thời trang" style="display: none;" required>
+
+                </div>
+                
+                <div class="productdetail__info-group productdetail__info-group-color">
+
+                    <label class="productdetail__info-label " for="color">Màu sắc: </label>
+                    {% for item in product.color  %}
+                        <button class="productdetail__info-input" type="button" name="color" value="{{item.id}}">
+                            <img class="productdetail__info-color-pic" src="{{MEDIA_URL}}{{item.img}}" alt="">
+                            <span>{{item.color}}</span>
+                        </button>
+                    {% endfor %}
+                    <input type="text" name="color" style="display:none" required>
+
+                </div>
+                <div class="productdetail__info-group productdetail__info-group-size">
+                    <label class="productdetail__info-label" for="color">Kích cỡ:  </label>
+                    {% for item in product.size %}
+                        <button type="button" class="productdetail__info-input" name="size" value="{{item.id}}">{{item.size}}</button>
+                        
+                    {% endfor %}
+                    <input type="text" name="size" style="display:none" required>
+            
+                </div>
+                <div class="productdetail__info-group productdetail__info-group-quantity">
+                    <label class=" productdetail__info-label" for="transport">Số lượng: </label>
+                    <button class="productdetail__info-input productdetail__quantity-minus" type="button">
+                        -
+                    </button>
+                    <input type="text" class="productdetail__info-input" name="quantity" value="1">
+                    <button class="productdetail__info-input productdetail__quantity-plus" type="button">
+                        +
+                    </button>
+                    <p class="productdetail__stock-quantity">
+                    
+                    </p>
+
+                </div>
+                <div class="productdetail__info-group">
+                    <button onclick="checkform('{% url "addCart" %}')" class="productdetail__btn-addtocart btn_hover" type="submit" >
+                        <span>
+                            <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng</button>
+                        </span>
+                    <input onclick="checkform('{% url "proccessPaymentMono"%}')" class="productdetail__btn-buy btn_hover" type="submit" value="Mua ngay">
+
+                </div>
+                <div style="display: none;"> 
+                    
+                    <input type="text" name="price" value={{product.product.price}} required>
+                </div>
+            </form> 
+            <div class="productdetail__footer">
+                <p class="productdetail__footer-item">
+                    <i class="fa-solid fa-box"></i>
+                    Đổi miễn phí 15 ngày
+                </p>
+                <p class="productdetail__footer-item">
+                    <i class="fa-solid fa-circle-check"></i>
+                    Hàng chính hãng 100%
+                </p>
+                <p class="productdetail__footer-item">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    Miễn phí vận chuyển
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://esgoo.net/scripts/jquery.js"></script>
+<script src={% static "/js/modal-info.js" %} ></script>
+    <script>
+        function checkform(url){
+            if(!document.querySelector('.productdetail__info-container').checkValidity()){
+                    renderInforModal('Vui lòng chọn size và màu sắc',false,'')
+
+            }else{
+                document.querySelector('.productdetail__info-container').action=url
+                this.submit()
+            }
+        }
+        
+    </script>
+
+    <script>
+        _$=document.querySelector.bind(document)
+        _$_$=document.querySelectorAll.bind(document)
+        var main_pic=_$(".productdetail__main-img")
+        var productlist_carousel=_$(".productdetail__carousel")
+        var productdetail__carousel_list=_$_$(".productdetail__carousel-item")
+        var carousel_idx=0
+        productdetail__carousel_list[0].classList.add('productdetail__carousel-item-active')
+        var carousel_length=productdetail__carousel_list.length
+        
+        
+        for(let item of productdetail__carousel_list){
+            item.onclick=function(){
+                carousel_idx=Array.prototype.indexOf.call(productdetail__carousel_list,this)
+               var productdetail__carousel_item_active=_$('.productdetail__carousel-item-active')
+               productdetail__carousel_item_active.classList.remove('productdetail__carousel-item-active')
+               this.classList.add('productdetail__carousel-item-active')
+                main_pic.src=this.src
+            }
+        }
+        stock={
+           
+
+        }
+        
+
+
+        var productdetail_dir_right=_$('.productdetail__carousel-right')
+        var productdetail_dir_left=_$('.productdetail__carousel-left')
+        productdetail_dir_left.onclick=()=>{
+            if(carousel_idx>0){
+                carousel_idx--
+                var productdetail__carousel_item_active=_$('.productdetail__carousel-item-active')
+               productdetail__carousel_item_active.classList.remove('productdetail__carousel-item-active')
+               productdetail__carousel_list[carousel_idx].classList.add('productdetail__carousel-item-active')
+                productlist_carousel.style.right=productdetail__carousel_item_active.offsetWidth*carousel_idx+'px'
+                main_pic.src=productdetail__carousel_list[carousel_idx].src
+    
+            }
+        }
+        productdetail_dir_right.onclick=()=>{
+            if(carousel_idx<carousel_length-1){
+                carousel_idx++
+                var productdetail__carousel_item_active=_$('.productdetail__carousel-item-active')
+               productdetail__carousel_item_active.classList.remove('productdetail__carousel-item-active')
+               productdetail__carousel_list[carousel_idx].classList.add('productdetail__carousel-item-active')
+                    productlist_carousel.style.right=productdetail__carousel_item_active.offsetWidth*carousel_idx+'px'
+                main_pic.src=productdetail__carousel_list[carousel_idx].src
+    
+            }
+        }
+        // Like
+        var productdetail__status_like=_$('.productdetail__status-like')
+        productdetail__status_like.onclick=()=>{
+            productdetail__status_like.querySelector('i').classList.toggle('fa-solid')
+            productdetail__status_like.querySelector('i').classList.toggle('fa-regular')
+    
+        }
+    
+
+        {% for item in  product.c_s %}
+                stock["{{item.size.id}}_{{item.color.id}}"]={{item.stock}}
+        {% endfor %}
+        console.log(stock)
+        function stockChange(){
+            var inputColor=_$('input[name="color"]')
+            var inputSize=_$('input[name="size"]')
+            let id=`${inputSize.value}_${inputColor.value}`
+            console.log(id)
+            if(stock[id])
+                _$(".productdetail__stock-quantity").innerText=`Có sẵn  ${stock[id]} sản phẩm`
+        }
+        // Color
+        var productdetail_group_color=_$('.productdetail__info-group-color')
+        var productdetail_color_choice=productdetail_group_color.querySelectorAll('.productdetail__info-input')
+        for (let button of productdetail_color_choice){
+            button.onclick=()=>{
+                
+                
+                carousel_idx=Array.prototype.indexOf.call(productdetail_color_choice,button)
+                var productdetail__carousel_item_active=_$('.productdetail__carousel-item-active')
+                productdetail__carousel_item_active.classList.remove('productdetail__carousel-item-active')
+                productdetail__carousel_list[carousel_idx].classList.add('productdetail__carousel-item-active')
+                productlist_carousel.style.right=productdetail__carousel_item_active.offsetWidth*carousel_idx+'px'
+                main_pic.src=productdetail__carousel_list[carousel_idx].src
+    
+
+                var productdetail_color_choice_active=productdetail_group_color.querySelector('.productdetail__info-item-active')
+                if(productdetail_color_choice_active)
+                    productdetail_color_choice_active.classList.remove('productdetail__info-item-active')
+                button.classList.add('productdetail__info-item-active')
+                productdetail_group_color.querySelector('input').value=button.value
+                stockChange()
+                
+            }
+        }
+        // Size
+        var productdetail_group_size=_$('.productdetail__info-group-size')
+        var productdetail_size_choice=productdetail_group_size.querySelectorAll('.productdetail__info-input')
+        for (let button of productdetail_size_choice){
+            button.onclick=()=>{
+                var productdetail_size_choice_active=productdetail_group_size.querySelector('.productdetail__info-item-active')
+                if(productdetail_size_choice_active)
+                    productdetail_size_choice_active.classList.remove('productdetail__info-item-active')
+
+                button.classList.add('productdetail__info-item-active')
+                productdetail_group_size.querySelector('input').value=button.value
+                stockChange()
+                
+            }
+        }
+        // Quantity
+        var productdetail_group_quantity=_$('.productdetail__info-group-quantity')
+        var productdetail_group_quantity_status=productdetail_group_quantity.querySelector('input')
+        var productdetail_quantity_minus=productdetail_group_quantity.querySelector('.productdetail__quantity-minus')
+        var productdetail_quantity_plus=productdetail_group_quantity.querySelector('.productdetail__quantity-plus')
+    
+        var quantity=1
+        productdetail_group_quantity_status.onblur=function(){
+            if(!this.value || this.value<=0) this.value=1
+        }
+        productdetail_quantity_minus.onclick=function(){
+            if(quantity>1){
+                quantity--;
+                productdetail_group_quantity_status.value=quantity
+            }
+    
+        }
+        productdetail_quantity_plus.onclick=function(){
+                quantity++;
+                productdetail_group_quantity_status.value=quantity
+        }
+        var updatequantity= function(e){
+            if(e.keyCode===13){
+                e.preventDefault()
+                e.target.blur()
+            }
+            quantity=Number(productdetail_group_quantity_status.value)
+            productdetail_group_quantity_status.value=quantity
+            
+    
+        }
+        productdetail_group_quantity_status.onkeydown=updatequantity
+        productdetail_group_quantity_status.onchange=updatequantity
+        
+        
+    
+    
+        
+    </script>
+
+{% endblock productdetail %}

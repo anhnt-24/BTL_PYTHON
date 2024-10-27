@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static "/css/base.css" %}">
+    <link rel="stylesheet" href="{% static "/css/authenticate.css" %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <title>Document</title>
+</head>
+<body>
+
+    <div class="authenticateHeader">
+            <a href="{% url "home" %}" class="authenticateHeader__icon">
+                Sopi          
+            </a>
+            <h2 class="authenticateHeader__title"><i class="fa-solid fa-user-shield"></i> Xác thực thông tin</h2>
+    </div>
+
+    <div class="main__container authenticateBody">
+        {% for item in messages  %}
+            <p class="error" style="margin-bottom:40px;{% if item.tags == 'success' %}background-color:#00800021; border:1px solid green;{% endif %} display:none">{{item}}</p>
+        {% endfor %}
+        <div class="loading__group" style="display: flex; flex-direction: column; align-items: center;">
+            <div class="loading"></div>
+            <p class="loading__title" for="">Đang tải</p>
+        </div>
+            <form style="display: none;" method="POST" action="{{next}}" class="authenticateform">               
+                {% csrf_token %}
+                <button type="button" onclick="window.history.back();" class="link_hover authenticateform__backward">
+                    <i class="fa-solid fa-left-long"></i>
+                </button>
+            <h2 class="authenticateBody__title">{{title}}</h2>
+            {% for item in listInput  %}
+                <div class="authenticateform__group">
+                    <label class="authenticateform__group-label" for="username">{{item.1}}</label><br>
+                    <div class="authenticateform__group-container" {% if item.0 == 'otp' %}style="flex-direction:row;" {% endif %}>
+                        
+                        <input class="authenticateform__group-input" id="{{item.0}}" type="{% if item.0 == 'password' or item.0 == 'confirmpassword' %}password{% else %}text{% endif %}" 
+                        name="{{item.0}}" placeholder="{{item.2}}">
+                        {% if item.0 == 'otp'  %}
+                            <button type="button" onclick="changeMessage()" class="authenticateform__group-container-btn authenticate-btn-countdown btn_hover">Gửi lại</button>
+                        {% endif %} 
+                    </div>
+                    {% if item.0 == 'username' %}
+                        <a style="color: var(--link-color);line-height: 1.8rem;" href="{% url "forgetUsername" %}" class="link_hover">Quên tài khoản?</a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button class="authenticateform__group-btn btn_hover" type="submit">Xác nhận</button>
+        </form>
+    </div>
+<form class="sendAgainForm" method="POST" action="{{linkSendAgain}}">
+    {% csrf_token %}
+    {% if data %}
+        <input name="{{data.0}}" value="{{data.1}}" style="display:none;">
+    {% endif %}
+</form>
+<script src="https://esgoo.net/scripts/jquery.js"></script>
+<script src={% static "/js/modal-info.js" %}></script>
+<script src={% static "/js/validate.js" %}></script>
+<script>
+        Validator({
+
+            form:'.authenticateform',
+            rules:[
+                Validator.isRequired('#username'),
+                Validator.isUsername('#username'),
+                Validator.isRequired('#password'),
+                Validator.isPassword('#password'),
+                Validator.isRequired('#confirmpassword'),
+                Validator.isConfirmPassword('#confirmpassword',function(){
+                    return document.querySelector('#password').value
+                }),
+                Validator.isRequired('#email'),
+                Validator.isEmail('#email'),
+                Validator.isRequired('#phone'),
+                Validator.isPhone('#phone'),
+            ]
+
+        })
+        
+</script>
+<script>
+    function changeMessage(){
+        $('.sendAgainForm').submit()
+        $('.error').text("Thành công")
+    }
+    function countDown(cnt=60,element,data){
+        var countDownId= setInterval(function(){
+            $(element).html(cnt);
+            cnt--
+            $(element).attr('disabled',true)
+            if(cnt==-1){
+                clearInterval(countDownId)
+                $(element).html(data)
+                $(element).attr('disabled',false)
+            }
+        },1000)
+    }
+    setTimeout(function(){
+        $(".authenticateform").css("display","flex")
+        $(".loading__group").remove()
+        {% if messages %}
+            $(".error").css("display","block")
+        {% endif %}
+        countDown(60,'.authenticate-btn-countdown','Gửi lại')
+    },1000)
+</script>    
+</body>
+
+</html>

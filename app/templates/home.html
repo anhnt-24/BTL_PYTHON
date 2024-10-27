@@ -1,0 +1,190 @@
+{% extends "app/main.html" %}
+{% load custom_filters %}
+
+{% block home %}
+
+<div class="main__container">
+    <div id="home">
+
+        <!-- Home Carousel -->
+        <div class="home__carousel">
+            <div style="position: relative; width: 1200px; height: 500px;overflow: hidden;">
+                <div class="home__carousel-imgs">
+                    {% for item in slider  %}
+                        <img class="home__carousel-img" style='object-fit:cover; min-width:1200px; height:500px' src="{{MEDIA_URL}}{{item.img}}" alt="Carousel Image">
+                    {% endfor %}
+                </div> 
+            </div>
+            <div class="home__carousel-change">
+                <p class="home__carousel-change-left">
+                    <i class="fa-solid fa-angle-left"></i>
+                </p>
+                <p class="home__carousel-change-right" >
+                    <i class="fa-solid fa-angle-right"></i>
+                </p>
+               
+            </div>
+            <div class="home__carousel-status">
+                {% for item in slider  %}
+                    <i class="fa-regular fa-circle home__carousel-status-item"></i>
+                {% endfor %}
+            </div>
+            
+        </div>
+        <!-- /Home Carousel -->
+
+        <!-- Home Product Container -->
+        {% for item1 in list  %}
+        
+            <div class="home__product-container">
+                <div class="home__product-list-titles">
+                    <h2>{{item1.generalCategory.name}}</h2>
+                    <div class="home__product-list-title-active"></div>
+                    {% for item2 in item1.list  %}
+                        <p class="home__product-list-title">{{item2.category.name}}</p>
+                    {% endfor %}
+        
+
+                </div>
+                <div style="overflow: hidden; position: relative; margin-bottom: 50px; width: 1350px;">
+                    <div class="home__product-container-2" >
+                        {% for item2 in item1.list  %}
+                            <div class="home__products">
+                                {% for item3 in item2.list %}
+                                    <div class="home__product-item collumn-4" href="#">
+                                        <span class="home__product-item-tag"><i class="fa-solid fa-check"></i> Yêu thích</span>
+                                        <span class="home__product-item-tag-before"></span>
+                                        <a href="{% url "productdetail" item3.product.id %}">
+                                            <img class="home_product-pic" src="{{MEDIA_URL}}{{item3.list.0.img}}" alt="Product Image">
+                                        </a>
+                                        <p class="home_product-header">{{item3.product.name}}</p>
+                                        <span class="home__product-item-ext"><i class="fa-solid fa-truck-fast"></i> Free ship extra</span>
+                                        <div class="home__product-item-group">
+                                            <p class="home__product-item-cost"> <del style="color: black; font-size: 1rem;">300.000đ</del> {{item3.product.price|format_currency }}</p>
+                                            <p style="font-size: 0.9rem;" >Đã bán 52,7k</p>
+                                        </div>
+                                        
+                                        <a href="{% url "productdetail" item3.product.id %}" class="home__product-item-detail btn_hover"><i class="fa-solid fa-circle-info"></i> Xem chi tiết</a>    
+                                        
+                                    </div>
+                                
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        
+        <!-- //Home Product Container -->
+        <div class="home__about-product">
+            <h2>Đăng kí nhận thông tin thêm về sản phẩm</h2>
+            <form class="home__about-product-form" action="/" method="post">
+                {% csrf_token %}
+                <label for="name">Họ và tên:</label><br>
+                <input class="home_about-input" type="text" id="name" name="name" placeholder="Họ và tên"><br><br>
+                
+                <label for="email">Email hoặc số điện thoại:</label><br>
+                <input class="home_about-input" type="text" id="email" name="email" placeholder="Email hoặc số điện thoại"><br><br>
+                
+                <input  class="home_about-btn" type="submit" value="Gửi" >
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('load',e =>{
+
+        _$=document.querySelector.bind(document)
+        _$$=document.querySelectorAll.bind(document)
+        var carousel_status=_$$(".home__carousel-status-item")
+        var carousel_status_length=carousel_status.length-1
+        var carousel_left=_$(".home__carousel-change-left")
+        var carousel_right=_$(".home__carousel-change-right")
+        var carousel_imgs= _$(".home__carousel-imgs")
+        var home__product_containers=_$$(".home__product-container")
+        var home__carousel_status=_$('.home__carousel-status')
+        for(let home__product_container of home__product_containers){
+            let titleselect=home__product_container.querySelectorAll(".home__product-list-title")
+            title=titleselect[0]
+            title.classList.add('title-active')
+            var titleActiveBar=home__product_container.querySelector(".home__product-list-title-active")
+            titleActiveBar.style.left=title.offsetLeft+'px'
+            titleActiveBar.style.width=title.offsetWidth+'px'
+        }
+
+        for(let home__product_container of home__product_containers){
+            let titleselect=home__product_container.querySelectorAll(".home__product-list-title")
+            for(let title of titleselect){
+                title.onclick=function(){
+                    var i=Array.prototype.indexOf.call(titleselect,this)
+                    var titleActiveBar=home__product_container.querySelector(".home__product-list-title-active")
+                    var titleActive=home__product_container.querySelector(".title-active")
+                    var home__products=home__product_container.querySelector(".home__product-container-2")
+                    home__products.style.left=-i*1350+'px'
+                    titleActive.classList.remove("title-active")
+                    this.classList.add("title-active")
+                    titleActiveBar.style.left=title.offsetLeft+'px'
+                    titleActiveBar.style.width=title.offsetWidth+'px'
+            }
+        }
+        }
+        
+        var idx
+        idx=0
+        function change_status_carousel(idx){
+            var current_status=home__carousel_status.querySelector(".fa-solid")
+            current_status.classList.remove("fa-solid")
+            current_status.classList.add("fa-regular")
+            carousel_status[idx].classList.remove("fa-regular")
+            carousel_status[idx].classList.add("fa-solid")
+            carousel_imgs.style.left=-idx*1200+"px"
+        }
+        carousel_status[0].classList.add("fa-solid")
+        for (let item of carousel_status){
+            item.onclick=function(){
+                idx=Array.prototype.indexOf.call(carousel_status,this)
+                change_status_carousel(idx)
+                clearInterval(b)
+                b=setInterval(a,3000)
+            }
+        }
+        carousel_left.onclick=function(){
+            var truoc=idx
+            idx-=1
+            if(idx<0){
+                idx=carousel_status_length
+            }
+            change_status_carousel(idx)
+            clearInterval(b)
+            b=setInterval(a,3000)
+        }
+        carousel_right.onclick=function(){
+            var truoc=idx
+            idx+=1
+            if(idx>carousel_status_length){
+                idx=0
+            }
+            change_status_carousel(idx)
+            clearInterval(b)
+            b=setInterval(a,3000)
+            
+        }
+        var a=function(){
+            var truoc=idx
+            idx+=1
+            if(idx>carousel_status_length){
+                idx=0
+            }
+            change_status_carousel(idx)
+        }
+        b=setInterval(a,3000)
+    })
+    
+
+
+
+</script>
+{% endblock home %}
