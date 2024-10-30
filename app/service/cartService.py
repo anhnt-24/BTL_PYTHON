@@ -11,7 +11,7 @@ def addCartItem(request):
 
     quantity=int(request.POST.get("quantity"))
     price=int(request.POST.get("price"))
-    color_size=getColor_SizeByMTM(request.POST.get("size"))
+    color_size=getColor_SizeByMTM(request.POST.get("size"),request.POST.get("color"))
     total=price*quantity
     cartItem=CartItem.objects.filter(user=getUser(request),color_size=color_size)
     if(cartItem):
