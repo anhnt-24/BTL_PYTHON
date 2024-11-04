@@ -9,8 +9,6 @@ from django.views.static import serve
 urlpatterns = [
     path('login',loginView,name='login'),
     path('register',register,name='register'),
-    
-
 
     path('',home,name='home'),
     path('productdetail/<int:id>',productdetail,name='productdetail'),
@@ -39,6 +37,7 @@ urlpatterns = [
     path('logout',logoutView,name='logout'),
     path('contact',contact,name='contact'),
     path('about-us',about_us,name='about-us'),
+    
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 
     path('my-info/update',userUpdate,name='userUpdate'),
@@ -48,8 +47,6 @@ urlpatterns = [
     path('my-address/update/<int:id>/',updateAddress,name='updateAddress'),
     path('my-address/create/',createAddress,name='createAddress'),
     path('my-address/set-default-address/<int:id>',setDefaultAddr,name='setDefaultAddr'),
-
-    path('getall',getAll),
 
     path('authenticate/forget/password',forgetPassword,name="forgetPassword"),
     path('authenticate/forget/username',forgetUsername,name="forgetUsername"),

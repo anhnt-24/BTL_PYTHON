@@ -17,7 +17,34 @@ const createChatLi = (message, className) => {
 }
 
 async function generateResponse(incomingChatLi) {
-	
+	const apiKey = "AIzaSyAGAUKIZEwVqGqSXSsaZ3AMa6PJ9SlCXvI"; // Replace with your actual API key
+	const messageElement = incomingChatLi.querySelector("p")
+	try {
+		const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+		method: 'POST',
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({
+			contents:[{
+				role:"user",
+				parts:[{ text:userMessage }]
+			}],
+		})
+		});
+
+		const data = await response.json();
+		const message=data?.candidates[0].content.parts[0].text
+		messageElement
+			.textContent = message;
+	} catch (error) {
+		messageElement
+			.classList.add("error");
+			messageElement
+			.textContent = "Có lỗi xảy ra.";
+	} finally {
+		chatbox.scrollTo(0, chatbox.scrollHeight)
+	}
 }
 
 	// Example usage:

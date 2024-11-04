@@ -67,9 +67,6 @@ def logoutView(request):
 
 @login_required
 def home(request):
-    if request.method=="POST":
-        messages.success(request,"Yêu cầu của bạn đã được lưu lại")
-        return redirect("home")
     slider=getAllSlider()
     context={
         'slider':slider,
@@ -262,7 +259,10 @@ def contact(request):
 
 @login_required
 def about_us(request):
-    return HttpResponse('Chao em nha!')
+    if request.method=="POST":
+        messages.success(request,"Yêu cầu của bạn đã được lưu lại")
+        return redirect("about-us")
+    return render(request,'about_us.html')
 
 @login_required
 def view404(request,exception):
